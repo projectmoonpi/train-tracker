@@ -160,11 +160,12 @@ INFO
 }
 make_app "Start Train Tracker" start.sh start start
 make_app "Stop Train Tracker" stop.sh stop stop
-make_app "Uninstall Train Tracker" uninstall.sh app uninstall
+make_app "Uninstall Train Tracker" uninstall.sh uninstall uninstall
 # files from a downloaded zip carry macOS's "downloaded" flag; apps built here shouldn't
 xattr -dr com.apple.quarantine "$APPS" 2>/dev/null || true
 ln -sfn "$APPS/Start Train Tracker.app" "$HOME/Desktop/Start Train Tracker"
 ln -sfn "$APPS/Stop Train Tracker.app" "$HOME/Desktop/Stop Train Tracker"
+ln -sfn "$APPS/Uninstall Train Tracker.app" "$HOME/Desktop/Uninstall Train Tracker"
 
 launchctl bootstrap "$DOMAIN" "$PLIST"
 echo "Installed US Train Tracker $VERSION. Starting it…"
@@ -174,5 +175,5 @@ if [ "${TT_OPEN:-yes}" = no ]; then
 else
   "$APPS/Start Train Tracker.app/Contents/MacOS/run"
 fi
-echo "Done. Use Start Train Tracker and Stop Train Tracker on your Desktop (also in Applications › Train Tracker)."
-[ -n "$TT_PHONES" ] || osascript -e 'display dialog "Train Tracker is installed and running.\n\nWhile it runs, its train icon is in the menu bar at the top of the screen: click it for the map, the API keys or to stop Train Tracker.\n\nUse Start Train Tracker and Stop Train Tracker on your Desktop (also in your Applications folder, under Train Tracker).\n\nYou can delete the downloaded folder now." buttons {"OK"} default button "OK" with title "Install Train Tracker"' >/dev/null 2>&1 || true
+echo "Done. Use Start Train Tracker and Stop Train Tracker on your Desktop (also in Applications › Train Tracker); Uninstall Train Tracker is there too."
+[ -n "$TT_PHONES" ] || osascript -e 'display dialog "Train Tracker is installed and running.\n\nWhile it runs, its train icon is in the menu bar at the top of the screen: click it for the map, the API keys or to stop Train Tracker.\n\nUse Start Train Tracker and Stop Train Tracker on your Desktop (also in your Applications folder, under Train Tracker). Uninstall Train Tracker is there too.\n\nYou can delete the downloaded folder now." buttons {"OK"} default button "OK" with title "Install Train Tracker"' >/dev/null 2>&1 || true

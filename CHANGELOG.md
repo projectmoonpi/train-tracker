@@ -12,6 +12,11 @@ All notable changes to this project are listed here. Versions follow [Semantic V
 - Activity Monitor and Task Manager list it as **Train Tracker** instead of Python.
 - Start Train Tracker says if it's already running; Stop Train Tracker says if it wasn't.
 - `/api/info` also gives when the server started and how many trains are on the map.
+- An **Uninstall Train Tracker** icon on the Desktop too (a grey trash-can badge), beside Start and Stop. On
+  Windows it's also listed in **Settings › Apps** (US Train Tracker, Project Moon Pi), whose Uninstall button
+  runs the same clean uninstaller.
+- Windows: installs in `%LOCALAPPDATA%\Train Tracker` (was `TrainTracker`); an install in the old folder is
+  moved over by running the installer.
 - Windows installer: finds Python even when it was installed after the window you started the installer from
   was opened (it used to offer to install Python again).
 

@@ -1,8 +1,10 @@
 # Uninstall Train Tracker: removes the service, the shortcuts and the program. Asks before deleting your data.
 # Designed and Created by Project Moon Pi.
+# -Quiet (or TT_UNATTENDED=1): no questions; removes the program and keeps your data
+param([switch]$Quiet)
 $AppDir = $PSScriptRoot
 Add-Type -AssemblyName System.Windows.Forms
-$unattended = [bool]$env:TT_UNATTENDED     # no questions; removes the program and keeps your data
+$unattended = $Quiet -or [bool]$env:TT_UNATTENDED
 if (-not $unattended) {
     $ok = [System.Windows.Forms.MessageBox]::Show('Remove Train Tracker from this PC?', 'Uninstall Train Tracker', 'OKCancel', 'Warning')
     if ($ok -ne 'OK') { exit 0 }
@@ -12,7 +14,9 @@ $cfg = Get-Content (Join-Path $AppDir 'settings.json') -Raw | ConvertFrom-Json
 if (Test-Path (Join-Path $AppDir 'firewall.ps1')) { $null = & (Join-Path $AppDir 'firewall.ps1') -Port $cfg.port }   # close the port for phones
 
 $desktop = [Environment]::GetFolderPath('Desktop')
-Remove-Item (Join-Path $desktop 'Start Train Tracker.lnk'), (Join-Path $desktop 'Stop Train Tracker.lnk') -ErrorAction SilentlyContinue
+Remove-Item (Join-Path $desktop 'Start Train Tracker.lnk'), (Join-Path $desktop 'Stop Train Tracker.lnk'),
+    (Join-Path $desktop 'Uninstall Train Tracker.lnk') -ErrorAction SilentlyContinue
+Remove-Item 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\ProjectMoonPi.TrainTracker' -Recurse -ErrorAction SilentlyContinue   # Settings > Apps
 Remove-Item (Join-Path ([Environment]::GetFolderPath('Startup')) 'Train Tracker.lnk') -ErrorAction SilentlyContinue
 Remove-Item (Join-Path ([Environment]::GetFolderPath('Programs')) 'Train Tracker') -Recurse -ErrorAction SilentlyContinue
 

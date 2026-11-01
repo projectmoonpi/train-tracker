@@ -77,11 +77,12 @@ shared beyond your own network unless you set up remote access (the guide covers
 **The easy way (Mac or Windows):** download **[for Mac](https://github.com/ricsne2010/train-tracker/releases/latest/download/US-Train-Tracker-for-Mac.zip)** or **[for Windows](https://github.com/ricsne2010/train-tracker/releases/latest/download/US-Train-Tracker-for-Windows.zip)** (also on the
 [latest release](../../releases/latest)), unzip it and double-click **Install Train Tracker**. The installer:
 
-* installs it for you (Mac: `~/Library/Application Support/Train Tracker`; Windows: `%LOCALAPPDATA%\TrainTracker`),
+* installs it for you (Mac: `~/Library/Application Support/Train Tracker`; Windows: `%LOCALAPPDATA%\Train Tracker`),
 * asks whether phones on your Wi-Fi may open the map, and whether it should start when you log in,
 * sets it up as a **background service** (a LaunchAgent on macOS, a hidden process on Windows), and
-* puts two icons on your Desktop (and in Applications or the Start menu): **Start Train Tracker** starts the
-  service and opens the map; **Stop Train Tracker** shuts it down. **Uninstall Train Tracker** is next to them.
+* puts three icons on your Desktop (and in Applications or the Start menu): **Start Train Tracker** starts the
+  service and opens the map; **Stop Train Tracker** shuts it down; **Uninstall Train Tracker** removes it
+  cleanly. On Windows it's also listed in **Settings › Apps**, whose Uninstall button does the same.
 * shows a **train icon in the menu bar** (Mac) or **by the clock** (Windows) while it runs: its menu says since
   when and how many trains are on the map, and opens the map or the API keys page, or stops Train Tracker.
   Activity Monitor and Task Manager list it as **Train Tracker**.

@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Draw the installer's app icons: a locomotive coming down the tracks at night, headlights on, with the
-Project Moon Pi patch in the corner. Start gets a green ▶ badge, Stop a red ■; Uninstall has no badge.
+Project Moon Pi patch in the corner. Start gets a green ▶ badge, Stop a red ■, Uninstall a grey trash can; the
+app itself has no badge.
 
-Writes installer/icons/{start,stop,app}.icns (macOS), .ico (Windows) and -256.png (previews). Needs Pillow.
+Writes installer/icons/{start,stop,uninstall,app}.icns (macOS), .ico (Windows) and -256.png (previews). Needs Pillow.
 
   python3 tools/make_icons.py
 """
@@ -103,14 +104,28 @@ def scene():
     return im
 
 
+def trash_can(d, cx, cy, q, slots):
+    """A white trash can about 2q wide and 2.3q tall, centred on cx, cy; its slots in the badge's colour."""
+    d.rounded_rectangle(P(cx - 0.36 * q, cy - 1.18 * q, cx + 0.36 * q, cy - 0.88 * q), radius=6 * K, fill="white")  # handle
+    d.rounded_rectangle(P(cx - 1.05 * q, cy - 0.95 * q, cx + 1.05 * q, cy - 0.68 * q), radius=6 * K, fill="white")  # lid
+    d.polygon([tuple(P(cx - 0.82 * q, cy - 0.55 * q)), tuple(P(cx + 0.82 * q, cy - 0.55 * q)),
+               tuple(P(cx + 0.66 * q, cy + 1.12 * q)), tuple(P(cx - 0.66 * q, cy + 1.12 * q))], fill="white")   # can
+    for x in (-0.36, 0, 0.36):
+        d.line([tuple(P(cx + x * q, cy - 0.32 * q)), tuple(P(cx + x * q * 0.85, cy + 0.88 * q))], fill=slots,
+               width=round(0.13 * q * K))
+
+
 def badge(im, kind):
     im = im.copy()
     d = ImageDraw.Draw(im)
     cx, cy, r = 790, 790, 150
     d.ellipse(P(cx - r - 16, cy - r - 16, cx + r + 16, cy + r + 16), fill=(255, 255, 255))
-    d.ellipse(P(cx - r, cy - r, cx + r, cy + r), fill=(34, 197, 94) if kind == "start" else (220, 38, 38))
+    fill = {"start": (34, 197, 94), "stop": (220, 38, 38), "uninstall": (100, 116, 139)}[kind]
+    d.ellipse(P(cx - r, cy - r, cx + r, cy + r), fill=fill)
     if kind == "start":
         d.polygon([tuple(P(cx - 48, cy - 80)), tuple(P(cx - 48, cy + 80)), tuple(P(cx + 86, cy))], fill="white")
+    elif kind == "uninstall":
+        trash_can(d, cx, cy, 62, fill)
     else:
         d.rounded_rectangle(P(cx - 64, cy - 64, cx + 64, cy + 64), radius=12 * K, fill="white")
     return im
@@ -119,7 +134,8 @@ def badge(im, kind):
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
     base = scene()
-    for name, im in (("start", badge(base, "start")), ("stop", badge(base, "stop")), ("app", base)):
+    for name, im in (("start", badge(base, "start")), ("stop", badge(base, "stop")),
+                     ("uninstall", badge(base, "uninstall")), ("app", base)):
         im = im.resize((1024, 1024), Image.LANCZOS)
         im.save(OUT / f"{name}.icns")
         im.save(OUT / f"{name}.ico", sizes=[(16, 16), (24, 24), (32, 32), (48, 48), (64, 64), (128, 128), (256, 256)])

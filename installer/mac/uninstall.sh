@@ -7,7 +7,8 @@ if [ -z "$TT_UNATTENDED" ]; then
   [ "$answer" = "Remove" ] || exit 0
 fi
 launchctl bootout "$DOMAIN/$LABEL" >/dev/null 2>&1
-rm -f "$PLIST" "$HOME/Desktop/Start Train Tracker" "$HOME/Desktop/Stop Train Tracker" "$LOG" "$LOG.1"
+rm -f "$PLIST" "$HOME/Desktop/Start Train Tracker" "$HOME/Desktop/Stop Train Tracker" "$HOME/Desktop/Uninstall Train Tracker" \
+  "$LOG" "$LOG.1"
 rm -rf "$APPDIR"
 [ -n "$TT_UNATTENDED" ] || keep=$(osascript -e 'button returned of (display dialog "Also delete the downloaded maps and schedules, and any API keys you saved?" buttons {"Keep them", "Delete"} default button "Keep them" with title "Uninstall Train Tracker")' 2>/dev/null)
 [ "$keep" = "Delete" ] && rm -rf "$HOME/.train-tracker"

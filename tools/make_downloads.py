@@ -33,6 +33,7 @@ Designed and Created by Project Moon Pi
 
 While it runs, its train icon is in the menu bar: click it for the map, the API keys or Stop.
 Afterwards use Start Train Tracker and Stop Train Tracker on your Desktop (also in Applications > Train Tracker).
+To remove it, double-click Uninstall Train Tracker there.
 You can delete this folder once it's installed. The full guide is "US Train Tracker - Installation Guide.pdf".
 """,
     "Windows": """US Train Tracker {v} for Windows
@@ -48,6 +49,7 @@ Designed and Created by Project Moon Pi
 While it runs, its green train icon is by the clock (click ^ if it's hidden): click it for the map,
 right-click for the API keys or Stop.
 Afterwards use Start Train Tracker and Stop Train Tracker on your Desktop (also in the Start menu).
+To remove it, double-click Uninstall Train Tracker there, or use Settings > Apps.
 You can delete this folder once it's installed. The full guide is "US Train Tracker - Installation Guide.pdf".
 """,
 }

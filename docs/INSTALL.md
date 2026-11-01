@@ -78,7 +78,8 @@ The server is light: it sits at almost no CPU between updates. It runs in the ba
 ### Start and stop
 
 Train Tracker runs quietly in the background: there's no window to keep open. Two icons control it, on your
-**Desktop** and in **Applications › Train Tracker**:
+**Desktop** and in **Applications › Train Tracker** (a third, **Uninstall Train Tracker**, removes it: see
+section 9):
 
 - **Start Train Tracker** (green ▶): starts it if it isn't running, and opens the map.
 - **Stop Train Tracker** (red ■): shuts it down. The map stops updating until you start it again.
@@ -123,7 +124,7 @@ connections, click **Allow**. Then see section 5.
 ### Start and stop
 
 Train Tracker runs quietly in the background, with no window. Two shortcuts control it, on your **Desktop**
-and in the **Start menu › Train Tracker**:
+and in the **Start menu › Train Tracker** (a third, **Uninstall Train Tracker**, removes it: see section 9):
 
 - **Start Train Tracker** (green ▶): starts it if it isn't running, and opens the map.
 - **Stop Train Tracker** (red ■): shuts it down.
@@ -241,8 +242,9 @@ Running the installer again is also how you change your answers (phones, start a
 
 **Removing:**
 
-- **Mac:** open **Applications › Train Tracker › Uninstall Train Tracker**.
-- **Windows:** **Start menu › Train Tracker › Uninstall Train Tracker**.
+- **Mac:** double-click **Uninstall Train Tracker** on your Desktop (also in **Applications › Train Tracker**).
+- **Windows:** double-click **Uninstall Train Tracker** on your Desktop (also in **Start menu › Train Tracker**),
+  or open **Settings › Apps**, find **US Train Tracker** and click **Uninstall**.
 
 It removes the service, the icons and the program, then asks whether to delete your data too: the
 downloaded maps and schedules, and any API keys you saved. That data lives in `~/.train-tracker` (Mac and
@@ -253,7 +255,7 @@ Raspberry Pi) or `C:\Users\<your name>\.train-tracker` (Windows).
 | What you see | What to do |
 |---|---|
 | "Needs Python 3.11 or newer" | Run the installer again and let it install Python. Or install Python yourself from [python.org](https://www.python.org/downloads/) (on Windows, tick **Add python.exe to PATH**), then run the installer again |
-| "Train Tracker didn't start" | Its messages say why: on a Mac in `~/Library/Logs/Train Tracker.log`, on Windows in `%LOCALAPPDATA%\TrainTracker\train-tracker.log`. A common cause is another program using port 7500 |
+| "Train Tracker didn't start" | Its messages say why: on a Mac in `~/Library/Logs/Train Tracker.log`, on Windows in `%LOCALAPPDATA%\Train Tracker\train-tracker.log`. A common cause is another program using port 7500 |
 | Stop says it's still running | Another program is serving on port 7500 (perhaps a copy started by hand). Close it, or restart the computer |
 | The browser didn't open | Open **http://127.0.0.1:7500** yourself |
 | No train icon in the menu bar or by the clock | Train Tracker isn't running: use Start Train Tracker. On Windows, also look under the **^** by the clock. If it's running (the map opens) but there's still no icon, run the installer again |

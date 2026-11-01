@@ -1,7 +1,8 @@
 # Install US Train Tracker on this PC (run by "Install Train Tracker.bat"; run it again later to update).
 #
-# Installs the program in %LOCALAPPDATA%\TrainTracker and puts Start Train Tracker and Stop Train Tracker on
-# the Desktop and in the Start menu. Needs Python 3.11 or newer; if it isn't there, it offers to install Python
+# Installs the program in %LOCALAPPDATA%\Train Tracker and puts Start, Stop and Uninstall Train Tracker on the
+# Desktop and in the Start menu, and lists it in Windows' Settings > Apps (with its Uninstall button).
+# (Before 0.5 the folder was %LOCALAPPDATA%\TrainTracker; an install there is moved over.) Needs Python 3.11 or newer; if it isn't there, it offers to install Python
 # from python.org for this user only (checked: the expected download, signed by the Python Software Foundation).
 # Designed and Created by Project Moon Pi.
 #
@@ -9,7 +10,9 @@
 # TT_PYTHON=yes|no (install Python if needed)
 $ErrorActionPreference = 'Stop'
 $Src = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
-$AppDir = Join-Path $env:LOCALAPPDATA 'TrainTracker'
+$AppDir = Join-Path $env:LOCALAPPDATA 'Train Tracker'
+$OldDir = Join-Path $env:LOCALAPPDATA 'TrainTracker'      # before 0.5
+$UninstallKey = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\ProjectMoonPi.TrainTracker'
 $Port = 7500
 Add-Type -AssemblyName System.Windows.Forms
 
@@ -103,8 +106,8 @@ if (-not $py) {
 $phones = Ask $env:TT_PHONES "Should phones and tablets on your Wi-Fi be able to open the train map?`n`nThey'll find the address and a QR code in the map's panel. If the firewall needs opening for them, Windows asks for permission once (click Yes)."
 $autostart = Ask $env:TT_AUTOSTART "Start Train Tracker by itself whenever you sign in to Windows?`n`nOtherwise, use the Start Train Tracker icon when you want it."
 
-# an update: stop the running service first
-if (Test-Path (Join-Path $AppDir 'stop.ps1')) { & (Join-Path $AppDir 'stop.ps1') -Quiet }
+# an update: stop the running service first (also an install in the old folder)
+foreach ($d in $AppDir, $OldDir) { if (Test-Path (Join-Path $d 'stop.ps1')) { & (Join-Path $d 'stop.ps1') -Quiet } }
 
 Write-Host "Installing into $AppDir (about a minute)..."
 New-Item -ItemType Directory -Force -Path $AppDir | Out-Null
@@ -126,7 +129,7 @@ try { Run $venvPy @('-m', 'pip', 'install', '--quiet', '--disable-pip-version-ch
 catch { Write-Host "$_ - Train Tracker will run without its icon by the clock." }
 
 foreach ($f in 'start.ps1', 'stop.ps1', 'uninstall.ps1', 'firewall.ps1') { Copy-Item (Join-Path $PSScriptRoot $f) $AppDir -Force }
-foreach ($f in 'start.ico', 'stop.ico', 'app.ico') { Copy-Item (Join-Path $Src "installer\icons\$f") $AppDir -Force }
+foreach ($f in 'start.ico', 'stop.ico', 'uninstall.ico', 'app.ico') { Copy-Item (Join-Path $Src "installer\icons\$f") $AppDir -Force }
 Get-ChildItem $AppDir -File | Unblock-File      # drop the "downloaded from the internet" mark on our own copies
 # TrainTracker.exe: Python under Train Tracker's own name and icon, so Task Manager shows "Train Tracker"
 # (pythonw.exe if not)
@@ -156,11 +159,29 @@ New-Item -ItemType Directory -Force -Path $menu | Out-Null
 foreach ($dir in $desktop, $menu) {
     New-Shortcut (Join-Path $dir 'Start Train Tracker.lnk') 'start.ps1' 'start.ico' 'Start US Train Tracker and open the map'
     New-Shortcut (Join-Path $dir 'Stop Train Tracker.lnk') 'stop.ps1' 'stop.ico' 'Stop US Train Tracker'
+    New-Shortcut (Join-Path $dir 'Uninstall Train Tracker.lnk') 'uninstall.ps1' 'uninstall.ico' 'Remove US Train Tracker from this PC'
 }
-New-Shortcut (Join-Path $menu 'Uninstall Train Tracker.lnk') 'uninstall.ps1' 'app.ico' 'Remove US Train Tracker from this PC'
 $startupLink = Join-Path ([Environment]::GetFolderPath('Startup')) 'Train Tracker.lnk'
 if ($autostart) { New-Shortcut $startupLink 'start.ps1' 'start.ico' 'Start US Train Tracker at sign-in' '-NoBrowser' }
 else { Remove-Item $startupLink -ErrorAction SilentlyContinue }
+
+# Settings > Apps (and Control Panel > Programs) list it, with an Uninstall button that runs uninstall.ps1
+$size = [int]((Get-ChildItem $AppDir -Recurse -File -ErrorAction SilentlyContinue | Measure-Object Length -Sum).Sum / 1KB)
+$uninstall = "`"$powershell`" -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"$(Join-Path $AppDir 'uninstall.ps1')`""
+New-Item -Path $UninstallKey -Force | Out-Null
+foreach ($v in @(@('DisplayName', 'US Train Tracker'), @('DisplayVersion', "$version"), @('Publisher', 'Project Moon Pi'),
+                 @('DisplayIcon', (Join-Path $AppDir 'app.ico')), @('InstallLocation', $AppDir),
+                 @('UninstallString', $uninstall), @('QuietUninstallString', "$uninstall -Quiet"),
+                 @('URLInfoAbout', 'https://github.com/ricsne2010/train-tracker'),
+                 @('InstallDate', (Get-Date -Format 'yyyyMMdd')))) {
+    New-ItemProperty -Path $UninstallKey -Name $v[0] -Value $v[1] -PropertyType String -Force | Out-Null
+}
+foreach ($v in @(@('NoModify', 1), @('NoRepair', 1), @('EstimatedSize', $size))) {
+    New-ItemProperty -Path $UninstallKey -Name $v[0] -Value $v[1] -PropertyType DWord -Force | Out-Null
+}
+
+# moved from the old folder: it's stopped and everything in it has been replaced, so it can go
+if (Test-Path $OldDir) { Remove-Item $OldDir -Recurse -Force -ErrorAction SilentlyContinue }
 
 # phones: make sure the firewall lets them in on home networks (Windows asks for permission only if needed)
 $fw = Join-Path $AppDir 'firewall.ps1'
@@ -182,9 +203,9 @@ if ($networkNote) { Write-Host $networkNote }
 Write-Host "Installed US Train Tracker $version. Starting it..."
 $env:TT_INSTALLING = '1'    # (Start doesn't need to say it's already running)
 if ($env:TT_OPEN -eq 'no') { & (Join-Path $AppDir 'start.ps1') -NoBrowser } else { & (Join-Path $AppDir 'start.ps1') }
-Write-Host 'Done. Use Start Train Tracker and Stop Train Tracker on your Desktop (also in the Start menu).'
+Write-Host 'Done. Use Start Train Tracker and Stop Train Tracker on your Desktop (also in the Start menu); Uninstall Train Tracker is there too, and in Settings > Apps.'
 if (-not $env:TT_PHONES) {
     [System.Windows.Forms.MessageBox]::Show(
-        "Train Tracker is installed and running.`n`nWhile it runs, its green train icon sits by the clock (click ^ if it's hidden there). Click it for the map, or right-click for the API keys or to stop Train Tracker.`n`nUse Start Train Tracker and Stop Train Tracker on your Desktop (also in the Start menu, under Train Tracker).`n`nYou can delete the downloaded folder now." + $(if ($networkNote) { "`n`n$networkNote" } else { '' }),
+        "Train Tracker is installed and running.`n`nWhile it runs, its green train icon sits by the clock (click ^ if it's hidden there). Click it for the map, or right-click for the API keys or to stop Train Tracker.`n`nUse Start Train Tracker and Stop Train Tracker on your Desktop (also in the Start menu, under Train Tracker). To remove it, use Uninstall Train Tracker there, or Settings > Apps.`n`nYou can delete the downloaded folder now." + $(if ($networkNote) { "`n`n$networkNote" } else { '' }),
         'Install Train Tracker', 'OK', 'Information') | Out-Null
 }
