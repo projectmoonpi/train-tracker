@@ -3,9 +3,12 @@
 #
 # It installs the program in ~/Library/Application Support/Train Tracker, sets it up as a background service,
 # and puts Start Train Tracker and Stop Train Tracker on your Desktop and in Applications › Train Tracker.
-# Needs Python 3.11 or newer from python.org. Designed and Created by Project Moon Pi.
+# Needs Python 3.11 or newer; if it isn't there, it offers to install Python from python.org (checked: the
+# expected download, signed by the Python Software Foundation and notarized by Apple).
+# Designed and Created by Project Moon Pi.
 #
 # For unattended installs, answer the questions ahead: TT_PHONES=yes|no TT_AUTOSTART=yes|no TT_OPEN=no
+# TT_PYTHON=yes|no (install Python if needed; an unattended Python install still asks for the admin password)
 SRC="$(cd "$(dirname "$0")" && pwd)"
 . "$SRC/installer/mac/common.sh"
 set -e
@@ -28,11 +31,41 @@ find_python() {
 }
 
 echo "US Train Tracker installer - Designed and Created by Project Moon Pi"
-PY=$(find_python) || {
+# Python from python.org, offered when there's no Python 3.11 or newer
+PY_VERSION=3.14.10
+PY_PKG=python-$PY_VERSION-macos11.pkg
+PY_SHA256=286c7018aa2730f6747ca433dccdc2b31be45f078a9ea0ffa44d5f06368fd2d7
+PY_SIGNER="Developer ID Installer: Python Software Foundation (BMM5U3QVKW)"
+
+no_python() {
   echo "Train Tracker needs Python 3.11 or newer: install it from https://www.python.org/downloads/ and run this again."
-  osascript -e 'display dialog "Train Tracker needs Python 3.11 or newer.\n\nClick Download to get it from python.org, install it, then double-click Install Train Tracker again." buttons {"Cancel", "Download"} default button "Download" with title "Install Train Tracker"' \
+  osascript -e "display dialog \"$1\n\nClick Download to get Python from python.org, install it, then double-click Install Train Tracker again.\" buttons {\"Cancel\", \"Download\"} default button \"Download\" with title \"Install Train Tracker\"" \
     -e 'if button returned of result is "Download" then open location "https://www.python.org/downloads/"' >/dev/null 2>&1 || true
   exit 1
+}
+
+install_python() {
+  local pkg
+  PY_TMP=$(mktemp -d)
+  trap 'rm -rf "$PY_TMP"' EXIT
+  pkg="$PY_TMP/$PY_PKG"
+  echo "Downloading Python $PY_VERSION from python.org (about 75 MB)…"
+  curl -fL --progress-bar -o "$pkg" "https://www.python.org/ftp/python/$PY_VERSION/$PY_PKG" ||
+    no_python "Python couldn't be downloaded. Check the internet connection."
+  [ "$(shasum -a 256 "$pkg" | cut -d' ' -f1)" = "$PY_SHA256" ] ||
+    no_python "The Python download wasn't the expected file, so it wasn't installed."
+  pkgutil --check-signature "$pkg" | grep -qF "1. $PY_SIGNER" && spctl -a -t install "$pkg" 2>/dev/null ||
+    no_python "The Python download isn't signed by the Python Software Foundation, so it wasn't installed."
+  echo "Installing Python $PY_VERSION (macOS asks for your password)…"
+  osascript -e "do shell script \"/usr/sbin/installer -pkg \" & quoted form of \"$pkg\" & \" -target /\" with administrator privileges with prompt \"Install Train Tracker wants to install Python $PY_VERSION from python.org.\"" >/dev/null ||
+    no_python "Python wasn't installed."
+}
+
+PY=$(find_python) || {
+  WANT=${TT_PYTHON:-$(ask "Train Tracker needs Python 3.11 or newer, and this Mac doesn't have it.\n\nInstall Python $PY_VERSION from python.org now? It's free, about 75 MB, and macOS asks for your password once." "Cancel" "Install Python")}
+  [ "$WANT" = yes ] || no_python "Train Tracker needs Python 3.11 or newer."
+  install_python
+  PY=$(find_python) || no_python "Python was installed but can't be found."
 }
 
 PHONES=${TT_PHONES:-$(ask "Should phones and tablets on your Wi-Fi be able to open the train map?\n\nThey'll find the address and a QR code in the map's panel." "This Mac only" "Phones too")}
@@ -43,7 +76,11 @@ launchctl bootout "$DOMAIN/$LABEL" >/dev/null 2>&1 || true
 
 echo "Installing with $("$PY" --version) into $APPDIR (about a minute)…"
 mkdir -p "$APPDIR" "$APPS" "$HOME/Library/LaunchAgents" "$HOME/Library/Logs"
-[ -x "$APPDIR/venv/bin/python" ] || "$PY" -m venv "$APPDIR/venv"
+# a fresh environment if there's none, or its Python was removed or is too old
+"$APPDIR/venv/bin/python" -c 'import sys; sys.exit(sys.version_info < (3, 11))' 2>/dev/null || {
+  rm -rf "$APPDIR/venv"
+  "$PY" -m venv "$APPDIR/venv"
+}
 "$APPDIR/venv/bin/python" -m pip install --quiet --upgrade pip
 "$APPDIR/venv/bin/python" -m pip install --quiet --upgrade "$SRC"
 VERSION=$("$APPDIR/venv/bin/python" -c 'import train_tracker; print(train_tracker.__version__)')

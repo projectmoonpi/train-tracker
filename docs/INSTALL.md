@@ -37,7 +37,7 @@ map is only visible on your own network unless you set up remote access (section
 | | Requirement |
 |---|---|
 | **Computer for the server** | A Mac (macOS 11 Big Sur or newer), a Windows 10 or 11 PC, a Linux computer, or a Raspberry Pi 4 or 5 (a Pi 3B+ works, more slowly) |
-| **Python** | Version 3.11 or newer, from [python.org](https://www.python.org/downloads/). 3.12 or newer is recommended |
+| **Python** | Version 3.11 or newer, from [python.org](https://www.python.org/downloads/). 3.12 or newer is recommended. On a Mac or Windows PC the installer installs it for you if it's missing |
 | **Memory** | About 150–200 MB while running |
 | **Disk space** | About 200 MB: the app (~40 MB) and its downloaded maps and schedules (~140 MB) |
 | **Internet** | Always on while the server runs. The first start downloads about 140 MB; after that it uses about 130 MB an hour (about 3 GB a day if left running all day) |
@@ -49,34 +49,31 @@ The server is light: it sits at almost no CPU between updates. It runs in the ba
 
 ## 3. Install on a Mac
 
-### Step 1: Install Python
-
-1. Go to [python.org/downloads](https://www.python.org/downloads/) and click **Download Python 3.x** (the
-   newest version).
-2. Open the downloaded `.pkg` file and click through the installer.
-
-You only do this once. If Python is already installed, skip this step: the installer checks for it.
-
-### Step 2: Download US Train Tracker
+### Step 1: Download US Train Tracker
 
 1. Download **[US Train Tracker for Mac](https://github.com/ricsne2010/train-tracker/releases/latest/download/US-Train-Tracker-for-Mac.zip)** (it's also on the
    [Releases page](https://github.com/ricsne2010/train-tracker/releases/latest), as **US-Train-Tracker-for-Mac.zip**).
 2. Open the downloaded zip (Safari usually unzips it for you). You get a folder named
    **US Train Tracker for Mac**, with a READ ME FIRST note and this guide inside.
 
-### Step 3: Run the installer
+### Step 2: Run the installer
 
 1. In that folder, double-click **Install Train Tracker.command**.
 2. macOS may say it can't verify the developer, because the installer isn't from the App Store. To allow it:
    open **System Settings → Privacy & Security**, scroll down to the message about "Install Train
    Tracker.command", and click **Open Anyway**. (On macOS 14 or older you can instead Control-click the
    file, choose **Open**, then **Open** again.)
-3. A Terminal window opens and the installer asks two questions:
+3. A Terminal window opens. Train Tracker runs on Python 3.11 or newer. If this Mac doesn't have it, the
+   installer offers to install it: click **Install Python**, and enter your Mac password when macOS asks. It
+   downloads Python 3.14 from [python.org](https://www.python.org/) (about 75 MB), checks it's the genuine
+   installer signed by the Python Software Foundation, and installs it. If Python is already installed, you
+   won't see this question.
+4. The installer asks two questions:
    - **Phones too, or this Mac only?** Choose **Phones too** if you'll open the map on a phone or tablet.
    - **Start by itself when you log in?** Choose **Yes** to have it always running while you're logged in.
-4. It installs (about a minute), starts Train Tracker, and opens the map in your browser. The very first start
+5. It installs (about a minute), starts Train Tracker, and opens the map in your browser. The very first start
    downloads the rail map and schedules, so trains can take another minute or two to appear.
-5. When it says it's done, you can close the Terminal window and delete the downloaded folder.
+6. When it says it's done, you can close the Terminal window and delete the downloaded folder.
 
 ### Start and stop
 
@@ -91,29 +88,28 @@ If you chose **Phones too** and macOS asks whether Python may accept incoming ne
 
 ## 4. Install on Windows
 
-### Step 1: Install Python
-
-1. Go to [python.org/downloads](https://www.python.org/downloads/) and click **Download Python 3.x**.
-2. Run the installer. **On the first screen, tick "Add python.exe to PATH"**, then click **Install Now**.
-
-### Step 2: Download US Train Tracker
+### Step 1: Download US Train Tracker
 
 1. Download **[US Train Tracker for Windows](https://github.com/ricsne2010/train-tracker/releases/latest/download/US-Train-Tracker-for-Windows.zip)** (it's also on the
    [Releases page](https://github.com/ricsne2010/train-tracker/releases/latest), as **US-Train-Tracker-for-Windows.zip**).
 2. In your Downloads folder, right-click the zip and choose **Extract All…**. You get a folder named
    **US Train Tracker for Windows**, with a READ ME FIRST note and this guide inside.
 
-### Step 3: Run the installer
+### Step 2: Run the installer
 
 1. In that folder, double-click **Install Train Tracker.bat**.
 2. Windows may show "Windows protected your PC" because the installer isn't signed. Click **More info**, then
    **Run anyway**.
-3. The installer asks two questions:
+3. Train Tracker runs on Python 3.11 or newer. If this PC doesn't have it, the installer offers to install it:
+   click **Yes**. It downloads Python 3.14 from [python.org](https://www.python.org/) (about 30 MB), checks
+   it's the genuine installer signed by the Python Software Foundation, and installs it just for you, with no
+   admin permission needed. If Python is already installed, you won't see this question.
+4. The installer asks two questions:
    - **Should phones and tablets be able to open the map?** Choose **Yes** if you'll use a phone or tablet.
    - **Start by itself when you sign in?** Choose **Yes** to have it always running while you're signed in.
-4. It installs (about a minute), starts Train Tracker, and opens the map in your browser. The very first start
+5. It installs (about a minute), starts Train Tracker, and opens the map in your browser. The very first start
    downloads the rail map and schedules, so trains can take another minute or two to appear.
-5. Press a key to close the installer window. You can delete the downloaded folder now.
+6. Press a key to close the installer window. You can delete the downloaded folder now.
 
 ### Start and stop
 
@@ -237,7 +233,7 @@ Raspberry Pi) or `C:\Users\<your name>\.train-tracker` (Windows).
 
 | What you see | What to do |
 |---|---|
-| "Needs Python 3.11 or newer" | Install Python from python.org (step 1). On Windows, reinstall and tick **Add python.exe to PATH** |
+| "Needs Python 3.11 or newer" | Run the installer again and let it install Python. Or install Python yourself from [python.org](https://www.python.org/downloads/) (on Windows, tick **Add python.exe to PATH**), then run the installer again |
 | "Train Tracker didn't start" | Its messages say why: on a Mac in `~/Library/Logs/Train Tracker.log`, on Windows in `%LOCALAPPDATA%\TrainTracker\train-tracker.log`. A common cause is another program using port 7500 |
 | Stop says it's still running | Another program is serving on port 7500 (perhaps a copy started by hand). Close it, or restart the computer |
 | The browser didn't open | Open **http://127.0.0.1:7500** yourself |

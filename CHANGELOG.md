@@ -4,6 +4,14 @@ All notable changes to this project are listed here. Versions follow [Semantic V
 
 ## [Unreleased]
 
+- No Python yet? The Mac and Windows installers now offer to install Python 3.14 from python.org, after
+  checking it's the expected download, signed by the Python Software Foundation (and notarized by Apple on a
+  Mac). On Windows it installs just for the user, with no admin permission needed. `TT_PYTHON=yes|no` answers
+  the question ahead for unattended installs.
+- Running the installer again rebuilds Train Tracker's own Python environment if the Python it was set up with
+  has been removed or is older than 3.11, instead of failing.
+- The Installation Guide no longer has a separate "Install Python" step.
+
 ## [0.4.0] - 2026-10-30
 
 - The map runs on MapLibre GL JS 6.16 (from 4.7.1), loaded as a module. It needs a browser with WebGL 2:

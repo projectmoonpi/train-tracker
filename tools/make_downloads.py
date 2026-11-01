@@ -25,9 +25,10 @@ READ_ME = {
     "Mac": """US Train Tracker {v} for Mac
 Designed and Created by Project Moon Pi
 
-1. Install Python 3.11 or newer from https://www.python.org/downloads/ (once).
-2. Double-click "Install Train Tracker.command".
+1. Double-click "Install Train Tracker.command".
    If macOS says it can't verify the developer: System Settings > Privacy & Security > Open Anyway.
+2. If this Mac doesn't have Python 3.11 or newer, it offers to install Python from python.org:
+   click Install Python and enter your Mac password when asked.
 3. Answer its two questions. It installs Train Tracker, starts it and opens the map.
 
 Afterwards use Start Train Tracker and Stop Train Tracker on your Desktop (also in Applications > Train Tracker).
@@ -36,10 +37,10 @@ You can delete this folder once it's installed. The full guide is "US Train Trac
     "Windows": """US Train Tracker {v} for Windows
 Designed and Created by Project Moon Pi
 
-1. Install Python 3.11 or newer from https://www.python.org/downloads/ (once).
-   In its installer, tick "Add python.exe to PATH".
-2. Double-click "Install Train Tracker.bat".
+1. Double-click "Install Train Tracker.bat".
    If Windows says it protected your PC: More info > Run anyway.
+2. If this PC doesn't have Python 3.11 or newer, it offers to install Python from python.org: click Yes.
+   It installs just for you, with no admin permission needed.
 3. Answer its two questions. It installs Train Tracker, starts it and opens the map.
    If you choose phones, click Yes if Windows asks to allow changes (that opens the firewall for them).
 

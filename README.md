@@ -13,8 +13,8 @@ Live Amtrak and commuter-rail positions on a map of US passenger track, in your 
 | 🍎 **[Download for Mac](https://github.com/ricsne2010/train-tracker/releases/latest/download/US-Train-Tracker-for-Mac.zip)** | Open the zip, double-click **Install Train Tracker.command** |
 | 🪟 **[Download for Windows](https://github.com/ricsne2010/train-tracker/releases/latest/download/US-Train-Tracker-for-Windows.zip)** | Extract the zip, double-click **Install Train Tracker.bat** |
 
-Both need Python 3.11 or newer from [python.org](https://www.python.org/downloads/). The installer sets Train Tracker
-up as a background service with **Start** and **Stop** icons. Step by step, including Raspberry Pi, iPhone and
+Both need Python 3.11 or newer: if the computer doesn't have it, the installer offers to install it from
+[python.org](https://www.python.org/downloads/) for you. The installer sets Train Tracker up as a background service with **Start** and **Stop** icons. Step by step, including Raspberry Pi, iPhone and
 Android: the **[Installation Guide](docs/INSTALL.md)** ([printable PDF](docs/US-Train-Tracker-Install-Guide.pdf)).
 
 ## How it works
@@ -41,7 +41,7 @@ shared beyond your own network unless you set up remote access (the guide covers
 | | |
 |---|---|
 | **Server computer** | macOS 11 or newer, Windows 10 or 11, Linux, or a Raspberry Pi 4 or 5 (3B+ works, more slowly) |
-| **Python** | 3.11 or newer from [python.org](https://www.python.org/downloads/) (3.12+ recommended) |
+| **Python** | 3.11 or newer from [python.org](https://www.python.org/downloads/) (3.12+ recommended); the Mac and Windows installers install Python 3.14 if it's missing |
 | **Memory** | about 150–200 MB while running |
 | **Disk** | about 200 MB (app ~40 MB, downloaded maps and schedules ~140 MB) |
 | **Internet** | always on while running: ~140 MB on first start, then about 130 MB an hour |
@@ -245,6 +245,7 @@ Project Moon Pi patch) into `installer/icons/`, for both macOS (`.icns`) and Win
 * [MapLibre GL JS](https://maplibre.org) 6.16.0, BSD-3-Clause
 * Basemap tiles: © [OpenFreeMap](https://openfreemap.org), © [OpenMapTiles](https://openmaptiles.org), map data © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors (ODbL)
 * Noto Sans (via the OpenFreeMap glyphs), SIL Open Font License 1.1
+* [Python](https://www.python.org) (PSF License), which the Mac and Windows installers download from python.org when it's missing
 * [aiohttp](https://github.com/aio-libs/aiohttp), Apache-2.0
 * [gtfs-realtime-bindings](https://github.com/MobilityData/gtfs-realtime-bindings), Apache-2.0
 * [protobuf](https://github.com/protocolbuffers/protobuf), BSD-3-Clause
