@@ -4,6 +4,8 @@ All notable changes to this project are listed here. Versions follow [Semantic V
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-10-31
+
 - You can see when it's running: a train icon in the Mac menu bar or by the Windows clock while Train Tracker
   runs (`--tray`, needs pystray and Pillow, which the installers add). Its menu shows the version, since when
   and how many trains are on the map, and the address for phones, and opens the map or the API keys page, or
