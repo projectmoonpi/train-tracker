@@ -82,6 +82,9 @@ shared beyond your own network unless you set up remote access (the guide covers
 * sets it up as a **background service** (a LaunchAgent on macOS, a hidden process on Windows), and
 * puts two icons on your Desktop (and in Applications or the Start menu): **Start Train Tracker** starts the
   service and opens the map; **Stop Train Tracker** shuts it down. **Uninstall Train Tracker** is next to them.
+* shows a **train icon in the menu bar** (Mac) or **by the clock** (Windows) while it runs: its menu says since
+  when and how many trains are on the map, and opens the map or the API keys page, or stops Train Tracker.
+  Activity Monitor and Task Manager list it as **Train Tracker**.
 
 Run the installer again to update or to change your answers. With phones allowed, the map's panel shows the
 address and a QR code to scan. Details, the Raspberry Pi setup and troubleshooting are in the
@@ -247,6 +250,9 @@ Project Moon Pi patch) into `installer/icons/`, for both macOS (`.icns`) and Win
 * Noto Sans (via the OpenFreeMap glyphs), SIL Open Font License 1.1
 * [Python](https://www.python.org) (PSF License), which the Mac and Windows installers download from python.org when it's missing
 * [aiohttp](https://github.com/aio-libs/aiohttp), Apache-2.0
+* Menu bar / taskbar icon (installed copies): [pystray](https://github.com/moses-palmer/pystray) (LGPL-3.0),
+  [Pillow](https://python-pillow.org) (MIT-CMU) and, on a Mac, [PyObjC](https://github.com/ronaldoussoren/pyobjc) (MIT);
+  `installer/windows/brand_exe.py` is adapted from Project Moon Pi's SkyScope
 * [gtfs-realtime-bindings](https://github.com/MobilityData/gtfs-realtime-bindings), Apache-2.0
 * [protobuf](https://github.com/protocolbuffers/protobuf), BSD-3-Clause
 * [certifi](https://github.com/certifi/python-certifi) (Mozilla's CA certificates), MPL-2.0

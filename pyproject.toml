@@ -19,6 +19,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+tray = ["pystray>=0.19", "pillow>=10"]    # the menu bar / taskbar icon (--tray)
 dev = ["pytest>=8", "build>=1"]
 
 [project.scripts]

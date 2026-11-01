@@ -12,18 +12,28 @@ function Test-Up {
     catch { return $false }
 }
 
-if (-not (Test-Up)) {
-    $log = Join-Path $AppDir 'train-tracker.log'
-    $argv = @('-m', 'train_tracker', '--port', "$port", '--log-file', "`"$log`"")
-    if ($cfg.phones) { $argv += @('--host', '0.0.0.0') }
-    $p = Start-Process -FilePath (Join-Path $AppDir 'venv\Scripts\pythonw.exe') -ArgumentList $argv `
-        -WorkingDirectory $AppDir -PassThru
-    Set-Content -Path (Join-Path $AppDir 'train-tracker.pid') -Value $p.Id
-
+function Show-Note($text, $ms) {
     $note = New-Object System.Windows.Forms.NotifyIcon
     $note.Icon = New-Object System.Drawing.Icon (Join-Path $AppDir 'start.ico')
     $note.Visible = $true
-    $note.ShowBalloonTip(8000, 'Train Tracker', 'Starting... The very first start takes a minute or two while it downloads maps and schedules.', 'Info')
+    $note.ShowBalloonTip($ms, 'Train Tracker', $text, 'Info')
+    return $note
+}
+
+if (Test-Up) {
+    # already running: say so (the map opens below)
+    if (-not $NoBrowser -and -not $env:TT_INSTALLING) {
+        $n = Show-Note 'Train Tracker is already running. Opening the map...' 3000; Start-Sleep -Seconds 3; $n.Dispose()
+    }
+} else {
+    $log = Join-Path $AppDir 'train-tracker.log'
+    $argv = @('-m', 'train_tracker', '--port', "$port", '--log-file', "`"$log`"", '--tray')
+    if ($cfg.phones) { $argv += @('--host', '0.0.0.0') }
+    $exe = if ($cfg.exe -and (Test-Path $cfg.exe)) { $cfg.exe } else { Join-Path $AppDir 'venv\Scripts\pythonw.exe' }
+    $p = Start-Process -FilePath $exe -ArgumentList $argv -WorkingDirectory $AppDir -PassThru
+    Set-Content -Path (Join-Path $AppDir 'train-tracker.pid') -Value $p.Id
+
+    $note = Show-Note 'Starting... The very first start takes a minute or two while it downloads maps and schedules.' 8000
     for ($i = 0; $i -lt 240; $i++) {
         if ((Test-Up) -or $p.HasExited) { break }
         Start-Sleep -Seconds 1

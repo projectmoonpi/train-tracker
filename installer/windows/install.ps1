@@ -25,10 +25,21 @@ function Run($exe, $argv, $what) {
 
 Write-Host 'US Train Tracker installer - Designed and Created by Project Moon Pi'
 
-# Python 3.11 or newer: the "py" launcher from python.org, or python on the PATH
+# Python 3.11 or newer: the "py" launcher from python.org, python on the PATH, or a Python that Windows has on
+# record as installed (a window opened before Python was installed still has the old PATH)
 function Find-Python {
+    $env:Path = (@($env:Path, [Environment]::GetEnvironmentVariable('Path', 'User'),
+                   [Environment]::GetEnvironmentVariable('Path', 'Machine')) | Where-Object { $_ }) -join ';'
     $check = @('-c', 'import sys; sys.exit(sys.version_info < (3, 11))')
-    foreach ($c in @(@{exe = 'py'; pre = @('-3')}, @{exe = 'python'; pre = @()})) {
+    $found = @(@{exe = 'py'; pre = @('-3')}, @{exe = 'python'; pre = @()})
+    foreach ($key in 'HKCU:\Software\Python\PythonCore', 'HKLM:\Software\Python\PythonCore',
+                     'HKLM:\Software\WOW6432Node\Python\PythonCore') {
+        Get-ChildItem $key -ErrorAction SilentlyContinue | ForEach-Object {
+            $exe = (Get-ItemProperty (Join-Path $_.PSPath 'InstallPath') -ErrorAction SilentlyContinue).ExecutablePath
+            if ($exe -and (Test-Path $exe)) { $found += @{exe = $exe; pre = @()} }
+        }
+    }
+    foreach ($c in $found) {
         if (-not (Get-Command $c.exe -ErrorAction SilentlyContinue)) { continue }
         $argv = $c.pre + $check
         try { & $c.exe @argv 2>$null } catch { continue }    # e.g. the Microsoft Store's "python" placeholder
@@ -78,8 +89,6 @@ function Install-Python {
             'Include_launcher=1', 'InstallLauncherAllUsers=0', 'Include_test=0', 'Include_doc=0')
         if ($p.ExitCode -notin 0, 3010) { No-Python "Python's installer stopped (exit code $($p.ExitCode))." }
     } finally { Remove-Item $exe -Force -ErrorAction SilentlyContinue }
-    # pick up the new PATH in this window
-    $env:Path = [Environment]::GetEnvironmentVariable('Path', 'User') + ';' + [Environment]::GetEnvironmentVariable('Path', 'Machine')
 }
 
 $py = Find-Python
@@ -112,11 +121,20 @@ if (-not $venvOk) {
 Run $venvPy @('-m', 'pip', 'install', '--quiet', '--upgrade', 'pip') 'Updating pip'
 Run $venvPy @('-m', 'pip', 'install', '--quiet', '--upgrade', $Src) 'Installing Train Tracker'
 $version = & $venvPy -c 'import train_tracker; print(train_tracker.__version__)'
+# pystray and Pillow put Train Tracker's icon by the clock; without them it runs without the icon
+try { Run $venvPy @('-m', 'pip', 'install', '--quiet', '--disable-pip-version-check', '--upgrade', 'pystray', 'pillow') 'Installing pystray and Pillow' }
+catch { Write-Host "$_ - Train Tracker will run without its icon by the clock." }
 
 foreach ($f in 'start.ps1', 'stop.ps1', 'uninstall.ps1', 'firewall.ps1') { Copy-Item (Join-Path $PSScriptRoot $f) $AppDir -Force }
 foreach ($f in 'start.ico', 'stop.ico', 'app.ico') { Copy-Item (Join-Path $Src "installer\icons\$f") $AppDir -Force }
 Get-ChildItem $AppDir -File | Unblock-File      # drop the "downloaded from the internet" mark on our own copies
-@{ port = $Port; phones = $phones; autostart = $autostart; version = "$version" } | ConvertTo-Json |
+# TrainTracker.exe: Python under Train Tracker's own name and icon, so Task Manager shows "Train Tracker"
+# (pythonw.exe if not)
+$ErrorActionPreference = 'Continue'
+$exe = & $venvPy (Join-Path $PSScriptRoot 'brand_exe.py') $AppDir | Select-Object -Last 1
+$ErrorActionPreference = 'Stop'
+if (-not $exe -or -not (Test-Path $exe)) { $exe = Join-Path $AppDir 'venv\Scripts\pythonw.exe' }
+@{ port = $Port; phones = $phones; autostart = $autostart; version = "$version"; exe = "$exe" } | ConvertTo-Json |
     Set-Content (Join-Path $AppDir 'settings.json')
 
 # shortcuts: Desktop and Start menu, plus the Startup folder when it should start at sign-in
@@ -148,9 +166,8 @@ else { Remove-Item $startupLink -ErrorAction SilentlyContinue }
 $fw = Join-Path $AppDir 'firewall.ps1'
 $networkNote = ''
 if ($phones) {
-    $pythonw = & $venvPy -c "import os, sys; print(os.path.join(sys.base_prefix, 'pythonw.exe'))"   # the program that listens
     Write-Host 'Checking that phones on your home network can reach Train Tracker...'
-    $state = & $fw -Allow -Port $Port -Program $pythonw
+    $state = & $fw -Allow -Port $Port -Program $exe      # the program that listens
     $public = @(Get-NetConnectionProfile -ErrorAction SilentlyContinue | Where-Object NetworkCategory -eq 'Public').Count
     if ($state -eq 'Declined') {
         $networkNote = "Windows didn't allow the firewall change, so phones can't reach the map yet. Run the installer again and click Yes when Windows asks."
@@ -163,10 +180,11 @@ if ($phones) {
 if ($networkNote) { Write-Host $networkNote }
 
 Write-Host "Installed US Train Tracker $version. Starting it..."
+$env:TT_INSTALLING = '1'    # (Start doesn't need to say it's already running)
 if ($env:TT_OPEN -eq 'no') { & (Join-Path $AppDir 'start.ps1') -NoBrowser } else { & (Join-Path $AppDir 'start.ps1') }
 Write-Host 'Done. Use Start Train Tracker and Stop Train Tracker on your Desktop (also in the Start menu).'
 if (-not $env:TT_PHONES) {
     [System.Windows.Forms.MessageBox]::Show(
-        "Train Tracker is installed and running.`n`nUse Start Train Tracker and Stop Train Tracker on your Desktop (also in the Start menu, under Train Tracker).`n`nYou can delete the downloaded folder now." + $(if ($networkNote) { "`n`n$networkNote" } else { '' }),
+        "Train Tracker is installed and running.`n`nWhile it runs, its green train icon sits by the clock (click ^ if it's hidden there). Click it for the map, or right-click for the API keys or to stop Train Tracker.`n`nUse Start Train Tracker and Stop Train Tracker on your Desktop (also in the Start menu, under Train Tracker).`n`nYou can delete the downloaded folder now." + $(if ($networkNote) { "`n`n$networkNote" } else { '' }),
         'Install Train Tracker', 'OK', 'Information') | Out-Null
 }

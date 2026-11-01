@@ -128,3 +128,27 @@ def test_station_board_lists_upcoming_trains_with_lateness():
     assert (row["train"], row["headsign"], row["delay"], row["ends_here"]) == ("540", "Grand Central", 120, False)
     assert hub.station_board("mnr", "nowhere") is None
     assert hub.stations()["features"][0]["properties"]["name"] == "White Plains"
+
+
+def test_info_gives_start_time_and_train_count():
+    from train_tracker.app import info_handler, make_app
+
+    class Request:
+        app = make_app()
+
+    Request.app["hub"].vehicles = {"f:1": {}, "f:2": {}}
+    info = json.loads(asyncio.run(info_handler(Request())).text)
+    assert info["version"] == __version__
+    assert info["trains"] == 2
+    assert 0 <= time.time() - info["since"] < 60
+
+
+def test_tray_icon_draws_a_train():
+    pytest.importorskip("PIL")
+    from train_tracker.tray import train_icon
+    img = train_icon((0, 0, 0), size=36)
+    assert img.size == (36, 36)
+    alpha = img.getchannel("A")
+    assert alpha.getpixel((18, 2)) > 200       # the roof
+    assert alpha.getpixel((18, 10)) < 50       # the windscreen, cut out
+    assert alpha.getpixel((1, 18)) == 0        # clear around it

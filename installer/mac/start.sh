@@ -2,7 +2,12 @@
 # Start Train Tracker: starts the background service if it isn't running, then opens the map.
 # --no-browser: start it without opening the map.
 . "$(dirname "$0")/common.sh"
-if ! up; then
+if up; then
+  if [ -n "$TT_INSTALLING" ]; then :
+  elif [ "$1" = "--no-browser" ]; then notify "Train Tracker is already running."
+  else notify "Train Tracker is already running. Opening the map…"
+  fi
+else
   launchctl print "$DOMAIN/$LABEL" >/dev/null 2>&1 || launchctl bootstrap "$DOMAIN" "$PLIST"
   launchctl kickstart "$DOMAIN/$LABEL"
   notify "Starting… The very first start takes a minute or two while it downloads maps and schedules."

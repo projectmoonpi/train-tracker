@@ -222,8 +222,10 @@ async def status_handler(request):
 
 
 async def info_handler(request):
-    """Version, and the address phones on this network can use (when the server listens beyond this computer)."""
-    return web.json_response({"version": __version__, "phone_url": request.app.get("phone_url")})
+    """Version, the address phones on this network can use (when the server listens beyond this computer),
+    and for the menu bar / taskbar icon, when it started and how many trains are on the map."""
+    return web.json_response({"version": __version__, "phone_url": request.app.get("phone_url"),
+                              "since": request.app["started"], "trains": len(request.app["hub"].vehicles)})
 
 
 async def alerts_handler(request):
@@ -345,6 +347,7 @@ def make_app(config_path: Path = DEFAULT_CONFIG, data_dir: Path = DEFAULT_DATA, 
     app["data_dir"] = data_dir
     app["cell_locks"] = {}
     app["allow_remote_settings"] = allow_remote_settings
+    app["started"] = time.time()
     settings.add_routes(app)
     app.router.add_get("/", index_handler)
     app.router.add_get("/ws", ws_handler)
@@ -362,6 +365,32 @@ def make_app(config_path: Path = DEFAULT_CONFIG, data_dir: Path = DEFAULT_DATA, 
     return app
 
 
+def start_tray(app, port):
+    """The menu bar / taskbar icon (tray.py), in a process of its own once the server is up; it goes away by
+    itself when this one ends."""
+    import importlib.util
+    import subprocess
+    if not (importlib.util.find_spec("pystray") and importlib.util.find_spec("PIL")):
+        log.info("No menu bar / taskbar icon: pystray and Pillow aren't installed")
+        return
+
+    async def start(app):
+        try:
+            app["tray"] = subprocess.Popen(
+                [sys.executable, "-m", "train_tracker.tray", "--port", str(port), "--parent", str(os.getpid())],
+                stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        except OSError as e:
+            log.warning("The menu bar / taskbar icon didn't start: %s", e)
+
+    async def stop(app):
+        tray = app.get("tray")
+        if tray and tray.poll() is None:
+            tray.terminate()
+
+    app.on_startup.append(start)
+    app.on_cleanup.append(stop)
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(prog="train-tracker", description="Live US passenger-train map server")
     ap.add_argument("--version", action="version", version=f"%(prog)s {__version__} - Designed and Created by Project Moon Pi")
@@ -372,6 +401,8 @@ def main(argv=None):
                     help="downloads and .env (default: ~/.train-tracker)")
     ap.add_argument("--open", action="store_true", help="open the map in your web browser once it's running")
     ap.add_argument("--log-file", type=Path, help="write messages to this file (for running in the background)")
+    ap.add_argument("--tray", action="store_true",
+                    help="show an icon in the Mac menu bar or the Windows taskbar while it runs (needs pystray and Pillow)")
     ap.add_argument("--allow-remote-settings", action="store_true",
                     help="let other devices change API keys on the settings page (default: this computer only)")
     sub = ap.add_subparsers(dest="command")
@@ -406,6 +437,8 @@ def main(argv=None):
             import webbrowser
             asyncio.get_running_loop().call_later(1.0, webbrowser.open, f"http://127.0.0.1:{args.port}")
         app.on_startup.append(open_browser)
+    if args.tray:
+        start_tray(app, args.port)
     try:
         web.run_app(app, host=args.host, port=args.port)
     except OSError as e:

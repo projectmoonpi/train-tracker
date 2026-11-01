@@ -84,6 +84,23 @@ mkdir -p "$APPDIR" "$APPS" "$HOME/Library/LaunchAgents" "$HOME/Library/Logs"
 "$APPDIR/venv/bin/python" -m pip install --quiet --upgrade pip
 "$APPDIR/venv/bin/python" -m pip install --quiet --upgrade "$SRC"
 VERSION=$("$APPDIR/venv/bin/python" -c 'import train_tracker; print(train_tracker.__version__)')
+# pystray and Pillow (with PyObjC) put Train Tracker's icon in the menu bar; without them it runs without the icon
+"$APPDIR/venv/bin/python" -m pip install --quiet --disable-pip-version-check --upgrade pystray pillow ||
+  echo "(Couldn't install pystray and Pillow: Train Tracker will run without its menu bar icon.)"
+
+# venv/bin/Train Tracker: Python under Train Tracker's own name, so Activity Monitor shows "Train Tracker". It's a
+# copy of Python's own program, signed again for its new place (its signature belongs to Python.app); plain python
+# if that doesn't work.
+EXE="$APPDIR/venv/bin/python"
+REAL=$("$EXE" -c 'import os, sys; p = os.path.join(sys.base_prefix, "Resources/Python.app/Contents/MacOS/Python"); print(p if os.path.exists(p) else os.path.realpath(sys._base_executable))')
+if cp "$REAL" "$APPDIR/venv/bin/Train Tracker.new" && codesign --force -s - "$APPDIR/venv/bin/Train Tracker.new" 2>/dev/null &&
+   "$APPDIR/venv/bin/Train Tracker.new" -c 'import sys, train_tracker; sys.exit(sys.prefix == sys.base_prefix)' 2>/dev/null; then
+  mv -f "$APPDIR/venv/bin/Train Tracker.new" "$APPDIR/venv/bin/Train Tracker"
+  EXE="$APPDIR/venv/bin/Train Tracker"
+else
+  rm -f "$APPDIR/venv/bin/Train Tracker.new"
+  echo "(Activity Monitor will show Train Tracker as Python.)"
+fi
 printf 'PORT=%s\nPHONES=%s\nAUTOSTART=%s\n' "$PORT" "$PHONES" "$AUTOSTART" > "$APPDIR/settings.sh"
 
 # the background service (a LaunchAgent: runs as you, only while you're logged in)
@@ -99,14 +116,16 @@ cat > "$PLIST" <<PLIST
   <key>Label</key><string>$LABEL</string>
   <key>ProgramArguments</key>
   <array>
-    <string>$APPDIR/venv/bin/train-tracker</string>
+    <string>$EXE</string>
+    <string>-m</string><string>train_tracker</string>
     <string>--port</string><string>$PORT</string>
     <string>--log-file</string><string>$LOG</string>
+    <string>--tray</string>
     $HOSTARGS
   </array>
   <key>WorkingDirectory</key><string>$APPDIR</string>
   <key>RunAtLoad</key><$RUNATLOAD/>
-  <key>ProcessType</key><string>Background</string>
+  <key>ProcessType</key><string>Standard</string>
 </dict>
 </plist>
 PLIST
@@ -149,10 +168,11 @@ ln -sfn "$APPS/Stop Train Tracker.app" "$HOME/Desktop/Stop Train Tracker"
 
 launchctl bootstrap "$DOMAIN" "$PLIST"
 echo "Installed US Train Tracker $VERSION. Starting it…"
+export TT_INSTALLING=1    # (Start doesn't need to say it's already running)
 if [ "${TT_OPEN:-yes}" = no ]; then
   "$APPS/Start Train Tracker.app/Contents/MacOS/run" --no-browser
 else
   "$APPS/Start Train Tracker.app/Contents/MacOS/run"
 fi
 echo "Done. Use Start Train Tracker and Stop Train Tracker on your Desktop (also in Applications › Train Tracker)."
-[ -n "$TT_PHONES" ] || osascript -e 'display dialog "Train Tracker is installed and running.\n\nUse Start Train Tracker and Stop Train Tracker on your Desktop (also in your Applications folder, under Train Tracker).\n\nYou can delete the downloaded folder now." buttons {"OK"} default button "OK" with title "Install Train Tracker"' >/dev/null 2>&1 || true
+[ -n "$TT_PHONES" ] || osascript -e 'display dialog "Train Tracker is installed and running.\n\nWhile it runs, its train icon is in the menu bar at the top of the screen: click it for the map, the API keys or to stop Train Tracker.\n\nUse Start Train Tracker and Stop Train Tracker on your Desktop (also in your Applications folder, under Train Tracker).\n\nYou can delete the downloaded folder now." buttons {"OK"} default button "OK" with title "Install Train Tracker"' >/dev/null 2>&1 || true

@@ -83,8 +83,17 @@ Train Tracker runs quietly in the background: there's no window to keep open. Tw
 - **Start Train Tracker** (green ▶): starts it if it isn't running, and opens the map.
 - **Stop Train Tracker** (red ■): shuts it down. The map stops updating until you start it again.
 
-If you chose **Phones too** and macOS asks whether Python may accept incoming network connections, click
-**Allow**. Then see section 5.
+### Is it running?
+
+While Train Tracker runs, its **train icon** is in the menu bar at the top of the screen (black or white, like
+the icons beside it). Click it to see that it's running, since when, how many trains are on the map and the
+address for phones, and to **Open the map**, change the **API keys…** or **Stop Train Tracker**. The icon fades
+if Train Tracker stops answering, and goes away when it stops. Activity Monitor lists it as **Train Tracker**.
+
+Start Train Tracker says so if it's already running, and Stop Train Tracker if it wasn't.
+
+If you chose **Phones too** and macOS asks whether Train Tracker (or Python) may accept incoming network
+connections, click **Allow**. Then see section 5.
 
 ## 4. Install on Windows
 
@@ -118,6 +127,16 @@ and in the **Start menu › Train Tracker**:
 
 - **Start Train Tracker** (green ▶): starts it if it isn't running, and opens the map.
 - **Stop Train Tracker** (red ■): shuts it down.
+
+### Is it running?
+
+While Train Tracker runs, its **green train icon** sits by the clock at the bottom right. Windows may tuck new
+icons away under the **^** arrow: drag it down onto the taskbar to keep it in sight. Click it to open the map,
+or right-click to see that it's running, since when, how many trains are on the map and the address for
+phones, and to change the **API keys…** or **Stop Train Tracker**. The icon turns grey if Train Tracker stops
+answering, and goes away when it stops. Task Manager lists it as **Train Tracker**.
+
+Start Train Tracker says so if it's already running, and Stop Train Tracker if it wasn't.
 
 If you chose phones, the installer makes sure Windows Firewall lets them in, on home (Private) networks only.
 If it needs to change the firewall, Windows asks *"Do you want to allow this app to make changes to your
@@ -237,7 +256,8 @@ Raspberry Pi) or `C:\Users\<your name>\.train-tracker` (Windows).
 | "Train Tracker didn't start" | Its messages say why: on a Mac in `~/Library/Logs/Train Tracker.log`, on Windows in `%LOCALAPPDATA%\TrainTracker\train-tracker.log`. A common cause is another program using port 7500 |
 | Stop says it's still running | Another program is serving on port 7500 (perhaps a copy started by hand). Close it, or restart the computer |
 | The browser didn't open | Open **http://127.0.0.1:7500** yourself |
-| The phone can't open the address | Check the phone is on the same Wi-Fi (not mobile data or a guest network), and that you installed with **Phones too**. On Windows, run the installer again and click **Yes** if Windows asks for permission, and make sure your network is set to Private. On a Mac, if macOS asked whether Python may accept incoming connections, choose **Allow**. Some routers keep devices apart ("client isolation" or "AP isolation"): turn that off for your home network |
+| No train icon in the menu bar or by the clock | Train Tracker isn't running: use Start Train Tracker. On Windows, also look under the **^** by the clock. If it's running (the map opens) but there's still no icon, run the installer again |
+| The phone can't open the address | Check the phone is on the same Wi-Fi (not mobile data or a guest network), and that you installed with **Phones too**. On Windows, run the installer again and click **Yes** if Windows asks for permission, and make sure your network is set to Private. On a Mac, if macOS asked whether Train Tracker (or Python) may accept incoming connections, choose **Allow**. Some routers keep devices apart ("client isolation" or "AP isolation"): turn that off for your home network |
 | `raspberrypi.local` doesn't work | Use the Pi's numbered address instead: run `hostname -I` on the Pi |
 | Map shows but no track | The first start is still downloading the rail map: wait a minute and reload |
 | A railroad shows a red or amber dot | Its feed is down or its key was refused: the panel says why. Feeds come back by themselves |

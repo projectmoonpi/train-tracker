@@ -31,6 +31,7 @@ Designed and Created by Project Moon Pi
    click Install Python and enter your Mac password when asked.
 3. Answer its two questions. It installs Train Tracker, starts it and opens the map.
 
+While it runs, its train icon is in the menu bar: click it for the map, the API keys or Stop.
 Afterwards use Start Train Tracker and Stop Train Tracker on your Desktop (also in Applications > Train Tracker).
 You can delete this folder once it's installed. The full guide is "US Train Tracker - Installation Guide.pdf".
 """,
@@ -44,6 +45,8 @@ Designed and Created by Project Moon Pi
 3. Answer its two questions. It installs Train Tracker, starts it and opens the map.
    If you choose phones, click Yes if Windows asks to allow changes (that opens the firewall for them).
 
+While it runs, its green train icon is by the clock (click ^ if it's hidden): click it for the map,
+right-click for the API keys or Stop.
 Afterwards use Start Train Tracker and Stop Train Tracker on your Desktop (also in the Start menu).
 You can delete this folder once it's installed. The full guide is "US Train Tracker - Installation Guide.pdf".
 """,
@@ -58,7 +61,7 @@ def build(platform):
     files += [p for p in sorted((ROOT / "src").rglob("*"))
               if p.is_file() and "__pycache__" not in p.parts and ".egg-info" not in str(p)]
     if windows:
-        files += [ROOT / "Install Train Tracker.bat"] + sorted((ROOT / "installer/windows").glob("*.ps1"))
+        files += [ROOT / "Install Train Tracker.bat"] + sorted((ROOT / "installer/windows").glob("*.ps1")) + [ROOT / "installer/windows/brand_exe.py"]
         files += sorted((ROOT / "installer/icons").glob("*.ico"))
     else:
         files += [ROOT / "Install Train Tracker.command"] + sorted((ROOT / "installer/mac").glob("*.sh"))

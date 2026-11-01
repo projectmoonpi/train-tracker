@@ -4,6 +4,17 @@ All notable changes to this project are listed here. Versions follow [Semantic V
 
 ## [Unreleased]
 
+- You can see when it's running: a train icon in the Mac menu bar or by the Windows clock while Train Tracker
+  runs (`--tray`, needs pystray and Pillow, which the installers add). Its menu shows the version, since when
+  and how many trains are on the map, and the address for phones, and opens the map or the API keys page, or
+  stops Train Tracker. It fades (Mac) or turns grey (Windows) if the server stops answering, and goes away when
+  it stops. On Windows it says once where the icon is.
+- Activity Monitor and Task Manager list it as **Train Tracker** instead of Python.
+- Start Train Tracker says if it's already running; Stop Train Tracker says if it wasn't.
+- `/api/info` also gives when the server started and how many trains are on the map.
+- Windows installer: finds Python even when it was installed after the window you started the installer from
+  was opened (it used to offer to install Python again).
+
 ## [0.4.1] - 2026-10-31
 
 - No Python yet? The Mac and Windows installers now offer to install Python 3.14 from python.org, after
