@@ -4,6 +4,8 @@ All notable changes to this project are listed here. Versions follow [Semantic V
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-10-31
+
 - No Python yet? The Mac and Windows installers now offer to install Python 3.14 from python.org, after
   checking it's the expected download, signed by the Python Software Foundation (and notarized by Apple on a
   Mac). On Windows it installs just for the user, with no admin permission needed. `TT_PYTHON=yes|no` answers
