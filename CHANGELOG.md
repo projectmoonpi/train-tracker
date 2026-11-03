@@ -4,6 +4,13 @@ All notable changes to this project are listed here. Versions follow [Semantic V
 
 ## [Unreleased]
 
+- Mac: Uninstall Train Tracker now removes its icons from the Desktop too. macOS silently stopped it before; it
+  now asks once for your OK (Start, Stop and Uninstall are small AppleScript apps that macOS knows by name).
+- Mac: Start, Stop and Uninstall are in the main **Applications › Train Tracker** folder (the one Finder shows),
+  or your own Applications folder if your account can't add to the main one. An older install's folder in your
+  own Applications folder is removed when you update.
+- No more setuptools warning about the licence field during install.
+
 ## [0.5.0] - 2026-10-31
 
 - You can see when it's running: a train icon in the Mac menu bar or by the Windows clock while Train Tracker

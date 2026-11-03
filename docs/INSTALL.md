@@ -243,6 +243,8 @@ Running the installer again is also how you change your answers (phones, start a
 **Removing:**
 
 - **Mac:** double-click **Uninstall Train Tracker** on your Desktop (also in **Applications › Train Tracker**).
+  The first time, macOS asks whether Uninstall Train Tracker may access files in your Desktop folder: click
+  **OK**, so it can remove its icons from the Desktop. (If you don't, it tells you to drag them to the Trash.)
 - **Windows:** double-click **Uninstall Train Tracker** on your Desktop (also in **Start menu › Train Tracker**),
   or open **Settings › Apps**, find **US Train Tracker** and click **Uninstall**.
 

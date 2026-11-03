@@ -1,7 +1,7 @@
 # Shared by the Train Tracker apps on macOS (copied into each app when installed).
 LABEL=com.projectmoonpi.train-tracker
 APPDIR="$HOME/Library/Application Support/Train Tracker"
-APPS="$HOME/Applications/Train Tracker"
+APPS="$HOME/Applications/Train Tracker"     # before 0.5.1; the installer now puts it in settings.sh (usually /Applications)
 PLIST="$HOME/Library/LaunchAgents/$LABEL.plist"
 LOG="$HOME/Library/Logs/Train Tracker.log"
 DOMAIN="gui/$(id -u)"

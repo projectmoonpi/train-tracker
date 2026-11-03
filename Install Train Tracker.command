@@ -2,7 +2,7 @@
 # Install US Train Tracker on this Mac. Double-click to run; run it again later to update.
 #
 # It installs the program in ~/Library/Application Support/Train Tracker, sets it up as a background service,
-# and puts Start Train Tracker and Stop Train Tracker on your Desktop and in Applications › Train Tracker.
+# and puts Start, Stop and Uninstall Train Tracker on your Desktop and in Applications › Train Tracker.
 # Needs Python 3.11 or newer; if it isn't there, it offers to install Python from python.org (checked: the
 # expected download, signed by the Python Software Foundation and notarized by Apple).
 # Designed and Created by Project Moon Pi.
@@ -75,6 +75,12 @@ AUTOSTART=${TT_AUTOSTART:-$(ask "Start Train Tracker by itself whenever you log 
 launchctl bootout "$DOMAIN/$LABEL" >/dev/null 2>&1 || true
 
 echo "Installing with $("$PY" --version) into $APPDIR (about a minute)…"
+# the apps go in Applications › Train Tracker, or in your own Applications folder (in your home folder) if this
+# account can't add to Applications; an older install's copy in the other place goes
+if [ -w /Applications ]; then APPS="/Applications/Train Tracker"; else APPS="$HOME/Applications/Train Tracker"; fi
+for old in "/Applications/Train Tracker" "$HOME/Applications/Train Tracker"; do
+  [ "$old" != "$APPS" ] && [ -d "$old/Start Train Tracker.app" ] && rm -rf "$old"
+done
 mkdir -p "$APPDIR" "$APPS" "$HOME/Library/LaunchAgents" "$HOME/Library/Logs"
 # a fresh environment if there's none, or its Python was removed or is too old
 "$APPDIR/venv/bin/python" -c 'import sys; sys.exit(sys.version_info < (3, 11))' 2>/dev/null || {
@@ -101,7 +107,7 @@ else
   rm -f "$APPDIR/venv/bin/Train Tracker.new"
   echo "(Activity Monitor will show Train Tracker as Python.)"
 fi
-printf 'PORT=%s\nPHONES=%s\nAUTOSTART=%s\n' "$PORT" "$PHONES" "$AUTOSTART" > "$APPDIR/settings.sh"
+printf 'PORT=%s\nPHONES=%s\nAUTOSTART=%s\nAPPS=%q\n' "$PORT" "$PHONES" "$AUTOSTART" "$APPS" > "$APPDIR/settings.sh"
 
 # the background service (a LaunchAgent: runs as you, only while you're logged in)
 HOSTARGS=""
@@ -130,32 +136,30 @@ cat > "$PLIST" <<PLIST
 </plist>
 PLIST
 
-# the apps: Start, Stop and Uninstall, each a tiny app wrapping its script
+# the apps: Start, Stop and Uninstall. Each is a small AppleScript app (made by macOS's osacompile) that runs
+# its script from Contents/Resources. A real app, not a script in a folder, so macOS can ask about it by name:
+# Uninstall needs your OK, once, to remove its icons from the Desktop (as SkyScope's do).
 make_app() {   # make_app "Name" script icon id
-  local app="$APPS/$1.app"
+  local app="$APPS/$1.app" plist="$APPS/$1.app/Contents/Info.plist"
   rm -rf "$app"
-  mkdir -p "$app/Contents/MacOS" "$app/Contents/Resources"
-  cp "$SRC/installer/mac/$2" "$app/Contents/MacOS/run"
-  cp "$SRC/installer/mac/common.sh" "$app/Contents/MacOS/common.sh"
-  chmod +x "$app/Contents/MacOS/run"
-  cp "$SRC/installer/icons/$3.icns" "$app/Contents/Resources/icon.icns"
-  cat > "$app/Contents/Info.plist" <<INFO
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-  <key>CFBundleName</key><string>$1</string>
-  <key>CFBundleDisplayName</key><string>$1</string>
-  <key>CFBundleIdentifier</key><string>$LABEL.$4</string>
-  <key>CFBundleExecutable</key><string>run</string>
-  <key>CFBundleIconFile</key><string>icon</string>
-  <key>CFBundlePackageType</key><string>APPL</string>
-  <key>CFBundleShortVersionString</key><string>$VERSION</string>
-  <key>NSHumanReadableCopyright</key><string>Designed and Created by Project Moon Pi</string>
-  <key>LSUIElement</key><true/>
-</dict>
-</plist>
-INFO
+  osacompile -o "$app" -e 'on run' \
+    -e 'try' \
+    -e 'do shell script quoted form of (POSIX path of (path to me) & "Contents/Resources/run.sh")' \
+    -e 'end try' -e 'end run'   # (the script shows its own messages)
+  cp "$SRC/installer/mac/$2" "$app/Contents/Resources/run.sh"
+  cp "$SRC/installer/mac/common.sh" "$app/Contents/Resources/common.sh"
+  chmod +x "$app/Contents/Resources/run.sh"
+  cp "$SRC/installer/icons/$3.icns" "$app/Contents/Resources/applet.icns"
+  rm -f "$app/Contents/Resources/Assets.car"
+  plutil -remove CFBundleIconName "$plist" >/dev/null 2>&1 || true
+  plutil -replace CFBundleName -string "$1" "$plist"
+  plutil -replace CFBundleDisplayName -string "$1" "$plist"
+  plutil -replace CFBundleIdentifier -string "$LABEL.$4" "$plist"
+  plutil -replace CFBundleShortVersionString -string "$VERSION" "$plist"
+  plutil -replace NSHumanReadableCopyright -string "Designed and Created by Project Moon Pi" "$plist"
+  plutil -replace NSDesktopFolderUsageDescription -string "To remove Train Tracker's icons from your Desktop." "$plist"
+  plutil -replace LSUIElement -bool YES "$plist"
+  codesign --force -s - "$app" 2>/dev/null || true   # signed again after the changes, so macOS knows it
   touch "$app"
 }
 make_app "Start Train Tracker" start.sh start start
@@ -171,9 +175,9 @@ launchctl bootstrap "$DOMAIN" "$PLIST"
 echo "Installed US Train Tracker $VERSION. Starting it…"
 export TT_INSTALLING=1    # (Start doesn't need to say it's already running)
 if [ "${TT_OPEN:-yes}" = no ]; then
-  "$APPS/Start Train Tracker.app/Contents/MacOS/run" --no-browser
+  "$APPS/Start Train Tracker.app/Contents/Resources/run.sh" --no-browser
 else
-  "$APPS/Start Train Tracker.app/Contents/MacOS/run"
+  "$APPS/Start Train Tracker.app/Contents/Resources/run.sh"
 fi
 echo "Done. Use Start Train Tracker and Stop Train Tracker on your Desktop (also in Applications › Train Tracker); Uninstall Train Tracker is there too."
 [ -n "$TT_PHONES" ] || osascript -e 'display dialog "Train Tracker is installed and running.\n\nWhile it runs, its train icon is in the menu bar at the top of the screen: click it for the map, the API keys or to stop Train Tracker.\n\nUse Start Train Tracker and Stop Train Tracker on your Desktop (also in your Applications folder, under Train Tracker). Uninstall Train Tracker is there too.\n\nYou can delete the downloaded folder now." buttons {"OK"} default button "OK" with title "Install Train Tracker"' >/dev/null 2>&1 || true

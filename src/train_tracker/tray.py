@@ -154,7 +154,9 @@ class Tray:
         self.stopping = True
         self.icon.update_menu()
         app = installed_dir()
-        mac_stop = Path.home() / "Applications/Train Tracker/Stop Train Tracker.app/Contents/MacOS/run"
+        mac_stop = next((p for p in (Path("/Applications"), Path.home() / "Applications")
+                         if (p / "Train Tracker/Stop Train Tracker.app").exists()), Path("/Applications"))
+        mac_stop = mac_stop / "Train Tracker/Stop Train Tracker.app/Contents/Resources/run.sh"
         if app and sys.platform == "darwin" and mac_stop.exists():
             subprocess.Popen([str(mac_stop)], start_new_session=True)
         elif app and sys.platform == "win32":

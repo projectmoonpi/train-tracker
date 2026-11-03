@@ -33,7 +33,8 @@ Designed and Created by Project Moon Pi
 
 While it runs, its train icon is in the menu bar: click it for the map, the API keys or Stop.
 Afterwards use Start Train Tracker and Stop Train Tracker on your Desktop (also in Applications > Train Tracker).
-To remove it, double-click Uninstall Train Tracker there.
+To remove it, double-click Uninstall Train Tracker there. The first time, macOS asks whether it may access
+your Desktop folder: click OK, so it can remove its icons too.
 You can delete this folder once it's installed. The full guide is "US Train Tracker - Installation Guide.pdf".
 """,
     "Windows": """US Train Tracker {v} for Windows
