@@ -1,0 +1,584 @@
+// Install <App>.exe: installs the app on this PC, in a window (run it again later to update, repair or reinstall
+// from scratch; your settings are kept). It runs from the downloaded folder, beside the program's files.
+//
+// Installs the program in %LOCALAPPDATA%\Programs\Project Moon Pi\<App> (or a folder you choose), with <App>.exe and
+// Uninstall <App>.exe in it; puts Start, Stop and Remove <App> in the Start menu, Start and Stop on the Desktop if you
+// like, and lists it in Settings > Apps. Needs Python (App.PythonMin); if it isn't there, it installs Python from
+// python.org for this user only (checked: the expected download, signed by the Python Software Foundation). What it
+// does is logged in %TEMP%\<App> install.log. Designed and Created by Project Moon Pi.
+//
+// Train Tracker itself is a Python package: built from this installer into a wheel, compared with the installed copy
+// (filecheck.py compare) and installed with pip into its own Python set-up. Its downloaded maps, schedules and API keys
+// live in %USERPROFILE%\.train-tracker (App.DataDir).
+//
+// Unattended (tests): answer ahead with TT_PHONES=yes|no TT_AUTOSTART=yes|no TT_DESKTOP=yes|no TT_OPEN=no
+// TT_PYTHON=yes|no TT_DIR=<folder> TT_MODE=update|repair|fresh; the window then needs no clicks.
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Runtime.InteropServices;
+using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading;
+using Microsoft.Win32;
+
+class Py
+{
+    public string Exe; public string[] Pre;
+    public Py(string exe, params string[] pre) { Exe = exe; Pre = pre; }
+    public string[] With(params string[] args) { return Pre.Concat(args).ToArray(); }
+}
+
+static class Install
+{
+    static string Src;            // the downloaded folder (the program's files)
+    static string AppDir;
+    static string WasRunning;
+    static int LastCode;
+    static string Env(string name) { return Environment.GetEnvironmentVariable(name.Replace("SS_", "TT_")); }
+
+    // a program run hidden, its output in the log, while the window keeps going
+    static string Run(string exe, IEnumerable<string> args, string what, double upTo, double seconds = 60, params int[] ok)
+    {
+        var argv = args.ToList();
+        App.Log(what + ": " + exe + " " + Proc.Join(argv));
+        var output = new StringBuilder();
+        Process p;
+        try { p = Proc.StartHidden(exe, argv, AppDir != null && Directory.Exists(AppDir) ? AppDir : null, output); }
+        catch (Exception e) { throw new Exception(what + " didn't work: " + e.Message); }
+        int code = Ui.Wait(p, upTo, seconds);
+        string text;
+        lock (output) text = output.ToString();
+        if (text.Trim().Length > 0) App.Log(text.Trim());
+        LastCode = code;
+        if (!(ok.Length == 0 ? new[] { 0 } : ok).Contains(code)) throw new Exception(what + " didn't work (exit code " + code + ").");
+        return text;
+    }
+
+    static string LastLine(string text)
+    {
+        return text.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries).LastOrDefault() ?? "";
+    }
+
+    // ---- Python
+
+    // the PATH as Windows has it now (a window opened before Python was installed still has the old one)
+    static void FreshPath()
+    {
+        var parts = new[] { Environment.GetEnvironmentVariable("PATH"),
+                            Environment.GetEnvironmentVariable("PATH", EnvironmentVariableTarget.User),
+                            Environment.GetEnvironmentVariable("PATH", EnvironmentVariableTarget.Machine) };
+        Environment.SetEnvironmentVariable("PATH", string.Join(";", parts.Where(p => !string.IsNullOrEmpty(p))));
+    }
+
+    // a new enough Python: the "py" launcher from python.org, python on the PATH, one Windows has on record as
+    // installed, or python.org's usual folders
+    static Py FindPython()
+    {
+        FreshPath();
+        string check = "import sys; sys.exit(sys.version_info < (" + App.PythonMin.Major + ", " + App.PythonMin.Minor + "))";
+        var found = new List<Py> { new Py("py", "-3"), new Py("python") };
+        foreach (var hive in new[] { Registry.CurrentUser, Registry.LocalMachine })
+            foreach (var key in new[] { @"Software\Python\PythonCore", @"Software\WOW6432Node\Python\PythonCore" })
+                using (var k = hive.OpenSubKey(key))
+                {
+                    if (k == null) continue;
+                    foreach (var v in k.GetSubKeyNames())
+                        using (var ip = k.OpenSubKey(v + @"\InstallPath"))
+                        {
+                            var exe = ip == null ? null : ip.GetValue("ExecutablePath") as string;
+                            if (!string.IsNullOrEmpty(exe) && File.Exists(exe)) found.Add(new Py(exe));
+                        }
+                }
+        foreach (var root in new[] { Path.Combine(App.LocalAppData, @"Programs\Python"), Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles) })
+        {
+            try
+            {
+                foreach (var d in Directory.GetDirectories(root, "Python3*").OrderByDescending(d => int.TryParse(Regex.Replace(Path.GetFileName(d), @"\D", ""), out int n) ? n : 0))
+                    if (File.Exists(Path.Combine(d, "python.exe"))) found.Add(new Py(Path.Combine(d, "python.exe")));
+            }
+            catch { }
+        }
+        foreach (var c in found)
+            if (Proc.Quick(c.Exe, c.With("-c", check), 30) == 0) return c;     // (not the Microsoft Store's placeholder)
+        return null;
+    }
+
+    static void InstallPython()
+    {
+        string arch = Env("PROCESSOR_ARCHITEW6432") ?? Env("PROCESSOR_ARCHITECTURE") ?? "x86";
+        var want = App.PyFiles.FirstOrDefault(f => string.Equals(f[0], arch, StringComparison.OrdinalIgnoreCase))
+                   ?? App.PyFiles.First(f => f[0] == "x86");
+        string exe = Path.Combine(Path.GetTempPath(), want[1]);
+        string url = "https://www.python.org/ftp/python/" + App.PyVersion + "/" + want[1];
+        App.Log("downloading " + url);
+        long have = 0, total = 0;
+        Exception failed = null;
+        bool finished = false;
+        using (var wc = new WebClient())
+        {
+            wc.DownloadProgressChanged += (s, e) => { have = e.BytesReceived; total = e.TotalBytesToReceive; };
+            wc.DownloadFileCompleted += (s, e) => { failed = e.Error; finished = true; };
+            wc.DownloadFileAsync(new Uri(url), exe);
+            while (!finished)
+            {
+                int pc = total > 0 ? (int)Math.Min(100, 100 * have / total) : 0;
+                Ui.Progress("Downloading Python " + App.PyVersion + " from python.org...", 2 + 18 * pc / 100.0,
+                            total > 0 ? pc + "% of " + Math.Round(total / 1048576.0) + " MB" : "");
+                Ui.Breathe(60);
+            }
+        }
+        if (failed != null)
+        {
+            App.Log("download: " + failed.Message);
+            throw new Exception("Python couldn't be downloaded. Check the internet connection, then run the installer again.");
+        }
+        try
+        {
+            Ui.Progress("Checking the Python download...", 21);
+            string hash;
+            using (var f = File.OpenRead(exe)) hash = BitConverter.ToString(SHA256.Create().ComputeHash(f)).Replace("-", "").ToLowerInvariant();
+            if (hash != want[2]) throw new Exception("The Python download wasn't the expected file, so it wasn't installed.");
+            if (!Signature.By(exe, "Python Software Foundation"))
+                throw new Exception("The Python download isn't signed by the Python Software Foundation, so it wasn't installed.");
+            Ui.Progress("Installing Python " + App.PyVersion + " for you...", 22, "This takes a minute or two.");
+            var p = Process.Start(new ProcessStartInfo(exe, "/quiet InstallAllUsers=0 PrependPath=1 Include_launcher=1 " +
+                                                       "InstallLauncherAllUsers=0 Include_test=0 Include_doc=0") { UseShellExecute = false });
+            int code = Ui.Wait(p, 40, 90);
+            App.Log("Python installer exit code " + code);
+            if (code != 0 && code != 3010) throw new Exception("Python's installer stopped (exit code " + code + ").");
+        }
+        finally { Files.TryDelete(exe); }
+    }
+
+    // ---- the folder
+
+    // the folder it goes in: the one chosen, unless that already holds other things (then an <App> folder inside
+    // it), so uninstalling can never take anything else with it
+    static string ResolveDir(string chosen)
+    {
+        chosen = Environment.ExpandEnvironmentVariables(chosen).TrimEnd('\\');
+        if (Directory.Exists(chosen) && Directory.EnumerateFileSystemEntries(chosen).Any()
+            && !File.Exists(Path.Combine(chosen, App.InfoFile))
+            && !string.Equals(Path.GetFileName(chosen), App.Name, StringComparison.OrdinalIgnoreCase))
+            return Path.Combine(chosen, App.Name);
+        return chosen;
+    }
+
+    // an error to show, or null if it can go there
+    static string CheckFolder(string path)
+    {
+        if (string.IsNullOrEmpty(path) || !Path.IsPathRooted(Environment.ExpandEnvironmentVariables(path)))
+            return "Choose a whole folder path, such as C:\\Users\\you\\Apps.";
+        string dir = ResolveDir(path);
+        foreach (var bad in new[] { Env("ProgramFiles"), Env("ProgramFiles(x86)"), Env("SystemRoot") })
+            if (!string.IsNullOrEmpty(bad) && dir.StartsWith(bad, StringComparison.OrdinalIgnoreCase))
+                return App.Name + " installs just for you, without asking for admin permission, so it can't go in " + bad +
+                       ". Choose a folder of your own, such as the one it suggests.";
+        try
+        {
+            Directory.CreateDirectory(dir);
+            string probe = Path.Combine(dir, ".write-test-" + Process.GetCurrentProcess().Id);
+            File.WriteAllText(probe, "ok"); File.Delete(probe);
+        }
+        catch { return App.Name + " can't write to " + dir + ". Choose another folder."; }
+        return null;
+    }
+
+
+    // ---- the install
+
+    public static int Begin()
+    {
+        Src = App.Here;
+        App.LogHeader("installer");
+        Ui.Unattended = !string.IsNullOrEmpty(Env("SS_PHONES"));
+        if (!File.Exists(Path.Combine(Src, @"src\train_tracker\__init__.py")))
+        {
+            // run straight from the zip: Windows copies only this file out
+            Ui.Say("Extract the zip first: right-click it, choose Extract All, then open Install " + App.Name +
+                   " in the extracted folder.");
+            return 1;
+        }
+        try { return Steps(); }
+        catch (Exception e)
+        {
+            App.Log("ERROR: " + e);
+            // it was running before the update began: start that copy again
+            string again = "";
+            if (WasRunning != null && File.Exists(Path.Combine(WasRunning, App.Name + ".exe")))
+            {
+                Process.Start(new ProcessStartInfo(Path.Combine(WasRunning, App.Name + ".exe"), "--no-browser") { UseShellExecute = false, WorkingDirectory = WasRunning });
+                again = "\n\nThe " + App.Name + " you already had is running again.";
+                App.Log("restarted " + WasRunning);
+            }
+            Ui.Error(App.Name + " wasn't installed.\n\n" + e.Message + again + "\n\nWhat the installer did is in " + App.LogFile + ".");
+            return 1;
+        }
+    }
+
+    static int Steps()
+    {
+        Ui.Open("Install " + App.Display, Path.Combine(Src, @"src\train_tracker\web\img\moon-pi-logo-128.png"),
+                Path.Combine(Src, @"installer\icons\" + App.Icon("app")), App.Display);
+        App.Log("window shown");
+
+        var py = FindPython();
+        string intro = "Live US passenger trains on a map, in your web browser. This installs Train Tracker for you on this PC; it runs quietly in the background, with a train icon by the clock.";
+        if (py == null) intro += "\n\nIt also installs Python " + App.PyVersion + " from python.org (" + App.PySize + "), which Train Tracker runs on.";
+        string was = App.InstalledDir();
+        string suggest = Env("SS_DIR") ?? was ?? App.DefaultDir;
+
+        // already installed? Then update (this one's newer), repair (the same) or reinstall from scratch
+        string newVersion = Regex.Match(File.ReadAllText(Path.Combine(Src, @"src\train_tracker\__init__.py")), "__version__ = \"([^\"]+)\"").Groups[1].Value;
+        string have = was == null ? null : App.InstalledVersion(was);
+        var fresh = new Mode("Reinstall from scratch", "Removes everything Train Tracker put on this PC, its settings and downloaded maps too, then installs it new. Only your saved API keys are kept.");
+        string compare = "Compares the installed files with this installer's and updates the ones that differ. Your settings, maps and API keys are kept.";
+        var buttons = new List<Mode>(); var modes = new List<string>();
+        string modeIntro = null;
+        if (have != null)
+        {
+            int n = App.Newer(newVersion, have);
+            if (n > 0)
+            {
+                modeIntro = App.Display + " " + have + " is installed on this PC. This installer has version " + newVersion + ". What would you like to do?";
+                buttons.Add(new Mode("Update to " + newVersion, compare)); modes.Add("update");
+            }
+            else if (n == 0)
+            {
+                modeIntro = App.Display + " " + have + " is already installed on this PC. What would you like to do?";
+                buttons.Add(new Mode("Repair", "Checks every installed file and fixes any that are damaged or missing, then sets up its shortcuts again. Your settings, maps and API keys are kept."));
+                modes.Add("repair");
+            }
+            else
+            {
+                modeIntro = "A newer " + App.Display + " (" + have + ") is installed on this PC than this installer's version (" + newVersion + "). Cancel keeps the newer one.";
+                buttons.Add(new Mode("Install " + newVersion, compare)); modes.Add("update");
+            }
+            buttons.Add(fresh); modes.Add("fresh");
+            if (py == null) modeIntro += " (It also installs Python " + App.PyVersion + " from python.org, which Train Tracker runs on.)";
+        }
+        bool wasPhones = was == null || App.InstalledFlag(was, "phones", true);
+        bool wasAuto = was != null && App.InstalledFlag(was, "autostart", false);
+        bool wasDesk = was == null || App.InstalledFlag(was, "desktop", true);
+        string mode = "install";
+        bool[] choices;
+        while (true)
+        {
+            string text = intro, okText = "Install";
+            if (have != null)
+            {
+                int pick = Ui.Modes(modeIntro, buttons);
+                if (pick < 0) { Ui.Close(); return 0; }
+                mode = modes[pick];
+                if (Ui.Unattended && Env("SS_MODE") != null) mode = Env("SS_MODE");
+                okText = mode == "update" ? "Update" : mode == "repair" ? "Repair" : "Reinstall";
+                string doing = mode == "update" ? "Updating Train Tracker " + have + " to " + newVersion
+                             : mode == "repair" ? "Repairing Train Tracker " + have
+                             : "Reinstalling Train Tracker " + newVersion + " from scratch";
+                text = doing + ": " + buttons[Math.Max(0, modes.IndexOf(mode))].Note + "\n\nChoose below, then click " + okText + " (or Back to choose differently).";
+            }
+            choices = Ui.Choices(text, new[] {
+                new Box(App.PhonesText, Env("SS_PHONES") != null ? Env("SS_PHONES") != "no" : wasPhones),
+                new Box("Start Train Tracker when I sign in to Windows", Env("SS_AUTOSTART") != null ? Env("SS_AUTOSTART") == "yes" : wasAuto),
+                new Box("Put Start and Stop Train Tracker on the Desktop", Env("SS_DESKTOP") != null ? Env("SS_DESKTOP") != "no" : wasDesk) },
+                okText, have != null, suggest, CheckFolder);
+            if (!Ui.WentBack) break;
+        }
+        if (choices == null) { Ui.Close(); return 0; }
+        bool phones = choices[0], autostart = choices[1], onDesktop = choices[2];
+        string problem = CheckFolder(Ui.Folder);
+        if (problem != null) throw new Exception(problem);
+        AppDir = ResolveDir(Ui.Folder);
+        App.Log("mode=" + mode + " (" + have + " -> " + newVersion + ") folder=" + AppDir + " phones=" + phones + " autostart=" + autostart + " desktop=" + onDesktop);
+
+        Ui.Progress("Checking the internet connection...", 1);
+        if (!Web.Online())
+            throw new Exception("Installing needs an internet connection, to download what Train Tracker runs on from python.org and " +
+                                "pypi.org, and this PC can't reach them. Nothing was changed" + (was != null ? ": the Train Tracker you have keeps working" : "") +
+                                ". Connect to the internet, then run the installer again.");
+
+        if (py == null)
+        {
+            if (Env("SS_PYTHON") == "no") throw new Exception("Train Tracker needs Python " + App.PythonMin + " or newer, and this PC doesn't have it.");
+            InstallPython();
+            py = FindPython();
+            if (py == null) throw new Exception("Python was installed but can't be found. Restart the PC and run the installer again.");
+        }
+
+        // an update: stop the running copy first (also older installs elsewhere)
+        Ui.Progress("Getting ready...", 42);
+        var others = App.OldDirs.Concat(was == null ? new string[0] : new[] { was })
+            .Where(d => !string.Equals(d.TrimEnd('\\'), AppDir, StringComparison.OrdinalIgnoreCase) && Directory.Exists(d))
+            .Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+        foreach (var d in new[] { AppDir }.Concat(others))
+        {
+            if (!App.IsInstalledIn(d)) continue;
+            if (Web.Up(App.InstalledPort(d))) WasRunning = d;     // (if this install goes wrong after this, it's started again)
+            App.Log("stopping the copy in " + d);
+            Runner.Stop(d, true);
+        }
+
+        var notes = new List<string>();
+        if (mode == "fresh")
+        {
+            // from scratch: everything it put on this PC goes (the program, its Python set-up and settings, its
+            // shortcuts, its Settings > Apps entry, the downloaded maps and schedules), except the saved API keys,
+            // which can't be downloaded again
+            Ui.Progress("Removing everything Train Tracker put on this PC...", 44);
+            foreach (var d in new[] { AppDir }.Concat(others))
+                if (App.IsInstalledIn(d)) { Files.TryDeleteDir(d); App.Log("removed " + d); }
+            Shortcuts.RemoveAll();
+            Registry.CurrentUser.DeleteSubKeyTree(App.UninstallKey, false);
+            if (Directory.Exists(App.DataDir))
+            {
+                foreach (var f in Directory.GetFileSystemEntries(App.DataDir).Where(f => Path.GetFileName(f) != ".env"))
+                {
+                    if (Directory.Exists(f)) Files.TryDeleteDir(f); else Files.TryDelete(f);
+                }
+                App.Log("removed the downloaded maps and schedules in " + App.DataDir + " (kept .env, the API keys)");
+                if (File.Exists(Path.Combine(App.DataDir, ".env")))
+                    notes.Add("Everything was removed and installed new, except your saved API keys. The maps and schedules download again on its first start.");
+            }
+            others.Clear();
+        }
+        Directory.CreateDirectory(AppDir);
+        string venvPy = Path.Combine(AppDir, @"venv\Scripts\python.exe");
+        var pipArgs = new[] { "--disable-pip-version-check", "--no-input", "--progress-bar", "off" };
+        Action newVenv = () =>
+        {
+            Ui.Progress("Setting up Python for Train Tracker...", 45);
+            Files.TryDeleteDir(Path.Combine(AppDir, "venv"));
+            Run(py.Exe, py.With("-m", "venv", Path.Combine(AppDir, "venv")), "Setting up Python", 50, 20);
+            try { Run(venvPy, new[] { "-m", "pip", "install", "--quiet", "--upgrade", "pip" }.Concat(pipArgs), "Updating pip", 52, 20); }
+            catch (Exception e) { App.Log(e.Message + " - carrying on with the pip it has"); }
+        };
+        // a fresh environment if there's none, its Python was removed or is too old, or it can't run its own pip
+        bool venvOk = File.Exists(venvPy)
+            && Proc.Quick(venvPy, new[] { "-c", "import sys; sys.exit(sys.version_info < (" + App.PythonMin.Major + ", " + App.PythonMin.Minor + "))" }) == 0
+            && Proc.Quick(venvPy, new[] { "-m", "pip", "--version" }) == 0;
+        if (File.Exists(venvPy) && !venvOk) App.Log("Train Tracker's Python set-up can't run: making it again");
+        if (!venvOk) newVenv();
+
+        // Train Tracker, built from this installer into a wheel, so its files can be compared with the installed ones
+        Ui.Progress("Building Train Tracker from this installer...", 52);
+        string work = Path.Combine(Path.GetTempPath(), "tt-install-" + Process.GetCurrentProcess().Id);
+        Files.TryDeleteDir(work);
+        Run(venvPy, new[] { "-m", "pip", "wheel", "--quiet", "--no-deps", "-w", work, Src }.Concat(pipArgs), "Building Train Tracker", 56, 60);
+        string wheel = Directory.GetFiles(work, "*.whl").First();
+        string check = Path.Combine(Src, @"installer\filecheck.py");
+        Environment.SetEnvironmentVariable("FC_APP", App.Name);
+        Func<string, string> summary = t => Regex.Replace(LastLine(t), "^Checked", "checked");
+        if (mode == "repair")
+        {
+            // every installed file against the fingerprint pip wrote down for it; packages with damaged or missing
+            // files are installed again (all of Python's set-up, if that doesn't fix them)
+            Ui.Progress("Checking Train Tracker's files...", 57);
+            string found = Run(venvPy, new[] { check, "check" }, "Checking the installed files", 62, 120, 0, 1);
+            if (LastCode == 0) notes.Add("Repair " + summary(found));
+            else
+            {
+                Ui.Progress("Fixing the damaged files...", 62);
+                bool fixedAll = true;
+                foreach (var line in found.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries).Where(l => l.StartsWith("REPAIR ")))
+                {
+                    string want = line.Substring(7).Trim();
+                    string what = want.StartsWith("train-tracker==") ? wheel : want;
+                    try { Run(venvPy, new[] { "-m", "pip", "install", "--force-reinstall", "--no-deps", what }.Concat(pipArgs), "Installing " + want + " again", 66, 60); }
+                    catch (Exception e) { App.Log(e.Message); fixedAll = false; }
+                }
+                if (fixedAll) { Run(venvPy, new[] { check, "check" }, "Checking the files again", 67, 120, 0, 1); fixedAll = LastCode == 0; }
+                if (fixedAll) notes.Add("Repair " + summary(found) + " It fixed them.");
+                else
+                {
+                    App.Log("some files could not be fixed in place: making the Python set-up again");
+                    newVenv();
+                    notes.Add("Repair " + summary(found) + " It set up Train Tracker's Python parts again to fix them.");
+                }
+            }
+            Ui.Progress("Installing Train Tracker...", 68, "Adding any part that is missing.");
+        }
+        else
+        {
+            // an update: only the files that differ from the installed ones are replaced
+            if (Proc.Quick(venvPy, new[] { "-c", "import importlib.util, sys; sys.exit(importlib.util.find_spec('train_tracker') is None)" }) == 0)
+                Ui.Progress("Comparing the installed files with this installer's...", 57);
+            string diff = Run(venvPy, new[] { check, "compare", wheel }, "Comparing the files", 60, 60, 0, 1);
+            if (LastCode != 0)
+            {
+                Ui.Progress("Installing Train Tracker...", 60, "Downloading what it needs; about a minute.");
+                Run(venvPy, new[] { "-m", "pip", "install", "--force-reinstall", "--no-deps", wheel }.Concat(pipArgs), "Replacing the files that differ", 64, 60);
+            }
+            if (mode == "update") notes.Add(LastLine(diff));
+        }
+        // the parts it runs on: pip adds only what's missing, or what this version needs newer
+        Run(venvPy, new[] { "-m", "pip", "install", wheel }.Concat(pipArgs), "Installing the parts Train Tracker runs on", 72, 90);
+        Files.TryDeleteDir(work);
+        var ver = new StringBuilder();
+        Proc.Quick(venvPy, new[] { "-c", "import train_tracker; print(train_tracker.__version__)" }, 30, AppDir, ver);
+        string version = LastLine(ver.ToString()).Trim();
+        // pystray and Pillow put its icon by the clock; without them it runs without the icon
+        Ui.Progress("Installing the icon by the clock...", 72);
+        try { Run(venvPy, new[] { "-m", "pip", "install", "pystray", "pillow" }.Concat(pipArgs), "Installing pystray and Pillow", 80, 30); }
+        catch (Exception e) { App.Log(e.Message + " - no icon by the clock"); }
+
+        // the Windows programs and their icons
+        Ui.Progress("Adding the shortcuts...", 81);
+        string win = Path.Combine(Src, @"installer\windows");
+        foreach (var exe in new[] { App.Name + ".exe", "Uninstall " + App.Name + ".exe" })
+            Put(Path.Combine(win, exe), Path.Combine(AppDir, exe));
+        foreach (var kind in new[] { "start", "stop", "uninstall", "app" })
+            Put(Path.Combine(Src, @"installer\icons\" + App.Icon(kind)), Path.Combine(AppDir, App.Icon(kind)));
+        Put(Path.Combine(Src, @"src\train_tracker\web\img\moon-pi-logo-128.png"), Path.Combine(AppDir, "logo.png"));
+        // what the PowerShell installers (before 0.6) left: their scripts, and Python renamed for Task Manager
+        foreach (var old in new[] { "start.ps1", "stop.ps1", "uninstall.ps1", "firewall.ps1", "ui.ps1", @"venv\Scripts\TrainTracker.exe" })
+            Files.TryDelete(Path.Combine(AppDir, old));
+        Files.Unblock(AppDir);     // drop the "downloaded from the internet" mark on our copies
+        int port = App.DefaultPort;
+        Json.Write(Path.Combine(AppDir, App.InfoFile), new Dictionary<string, object> {
+            { "port", port }, { "phones", phones }, { "autostart", autostart }, { "desktop", onDesktop },
+            { "version", version }, { "exe", Path.Combine(AppDir, App.Name + ".exe") } });
+
+        // shortcuts: the Start menu, the Desktop if wanted (Start and Stop only), and the Startup folder when it
+        // should start at sign-in
+        Shortcuts.Make(AppDir, onDesktop, autostart);
+
+        // Settings > Apps (and Control Panel > Programs) list it, with an Uninstall button
+        Ui.Progress("Listing Train Tracker in Settings > Apps...", 87);
+        string uninstall = "\"" + Path.Combine(AppDir, "Uninstall " + App.Name + ".exe") + "\"";
+        using (var k = Registry.CurrentUser.CreateSubKey(App.UninstallKey))
+        {
+            k.SetValue("DisplayName", App.Display);
+            k.SetValue("DisplayVersion", version);
+            k.SetValue("Publisher", "Project Moon Pi");
+            k.SetValue("DisplayIcon", Path.Combine(AppDir, App.Icon("app")));
+            k.SetValue("InstallLocation", AppDir);
+            k.SetValue("UninstallString", uninstall);
+            k.SetValue("QuietUninstallString", uninstall + " -Quiet");
+            k.SetValue("URLInfoAbout", App.Url);
+            k.SetValue("InstallDate", DateTime.Now.ToString("yyyyMMdd"));
+            k.SetValue("NoModify", 1, RegistryValueKind.DWord);
+            k.SetValue("NoRepair", 1, RegistryValueKind.DWord);
+            k.SetValue("EstimatedSize", (int)(Files.SizeOf(AppDir) / 1024), RegistryValueKind.DWord);
+        }
+
+        // moved from an older folder: it's stopped and everything in it has been replaced, so it can go
+        foreach (var d in others) if (App.IsInstalledIn(d)) Files.TryDeleteDir(d);
+
+        // phones: make sure the firewall lets them in on home networks (Windows asks for permission only if
+        // needed, and a note says so first)
+        string networkNote = null;
+        if (phones)
+        {
+            Ui.Progress("Letting phones on your home network reach the map...", 89);
+            string state = Firewall.Ensure(port, BasePythonW(AppDir), Ui.Unattended);
+            App.Log("firewall: " + state);
+            if (state == "Declined")
+                networkNote = "Windows didn't allow the firewall change, so phones can't reach the map yet. Run the installer again and click Yes when Windows asks.";
+            else if (state != "AllowedPublic" && Firewall.OnPublicNetwork())
+                networkNote = "This PC's network is set to Public, where Windows keeps other devices out. For phones to reach the map, set your home Wi-Fi to Private: Settings > Network & Internet > (your connection) > Private.";
+        }
+        else Firewall.Remove(port, Ui.Unattended);
+        if (networkNote != null) App.Log(networkNote);
+
+        // start it (the first start downloads the rail map and schedules, which can take a minute or two)
+        Ui.Progress("Starting Train Tracker...", 90, "The very first start downloads the rail map and schedules: a minute or two.");
+        var start = new ProcessStartInfo(Path.Combine(AppDir, App.Name + ".exe"), "--no-browser") { UseShellExecute = false, WorkingDirectory = AppDir };
+        start.EnvironmentVariables["SS_INSTALLING"] = "1";      // (Start needn't put up its own notice)
+        Ui.Wait(Process.Start(start), 100, 90);
+        bool up = Web.Up(port, 5000);
+        App.Log("installed " + version + ", running=" + up);
+
+        string did = mode == "update" ? "is installed (updated from " + have + ")" : mode == "repair" ? "is repaired"
+                   : mode == "fresh" ? "is reinstalled from scratch" : "is installed";
+        string done = App.Display + " " + version + " " + did + (up ? " and running." : ", but it didn't start yet: use Start Train Tracker in the Start menu.") +
+            "\n\nIts train icon is by the clock (click ^ if Windows has tucked it away there). Start and Stop Train Tracker are in the Start menu" +
+            (onDesktop ? ", and on your Desktop" : "") + ". To remove it, use Remove Train Tracker in the Start menu, Uninstall Train Tracker in " + AppDir + ", or Settings > Apps." +
+            (networkNote != null ? "\n\n" + networkNote : "") + string.Concat(notes.Select(n => "\n\n" + n));
+        var open = Ui.Done(done, "Finish", new[] { new Box("Open the map now", up && Env("SS_OPEN") != "no") });
+        if (up && open.Length > 0 && open[0] && !Ui.Unattended) Proc.Open("http://127.0.0.1:" + port + App.OpenPath);
+        return 0;
+    }
+
+    // before 1.7, keeps refusing that path until it's cleared and the PC restarts): say so, rather than "denied".
+    static void Put(string from, string to)
+    {
+        try { File.Copy(from, to, true); }
+        catch (UnauthorizedAccessException) when (!File.Exists(to))
+        {
+            throw new Exception("Windows wouldn't let the installer create " + to + ". That's usually an antivirus program " +
+                                "that removed this file from an earlier install and still blocks it. Open your antivirus " +
+                                "program's quarantine, delete the " + App.Name + " files listed there, restart the PC, " +
+                                "then run the installer again.");
+        }
+    }
+
+    // the Python program that actually listens (a venv's pythonw.exe starts its base Python's): the firewall's
+    // "allow this app?" rules name that one
+    static string BasePythonW(string dir)
+    {
+        try
+        {
+            foreach (var line in File.ReadAllLines(Path.Combine(dir, @"venv\pyvenv.cfg")))
+            {
+                var m = Regex.Match(line, @"^\s*home\s*=\s*(.+?)\s*$");
+                if (m.Success) return Path.Combine(m.Groups[1].Value, "pythonw.exe");
+            }
+        }
+        catch { }
+        return Runner.PythonW(dir);
+    }
+}
+
+// Is a file signed (and the signature good, by Windows' own check) by this organisation?
+static class Signature
+{
+    public static bool By(string file, string organisation)
+    {
+        try
+        {
+            if (Verify(file) != 0) return false;
+            var cert = new X509Certificate2(X509Certificate.CreateFromSignedFile(file));
+            return Regex.IsMatch(cert.Subject, "O=\"?" + Regex.Escape(organisation));
+        }
+        catch { return false; }
+    }
+
+    static int Verify(string file)
+    {
+        var fileInfo = new WINTRUST_FILE_INFO { cbStruct = (uint)Marshal.SizeOf(typeof(WINTRUST_FILE_INFO)), pcwszFilePath = file };
+        IntPtr pFile = Marshal.AllocHGlobal(Marshal.SizeOf(fileInfo));
+        Marshal.StructureToPtr(fileInfo, pFile, false);
+        var data = new WINTRUST_DATA
+        {
+            cbStruct = (uint)Marshal.SizeOf(typeof(WINTRUST_DATA)), dwUIChoice = 2 /* none */, fdwRevocationChecks = 0,
+            dwUnionChoice = 1 /* file */, pFile = pFile, dwStateAction = 0, dwProvFlags = 0x10 /* safer */,
+        };
+        IntPtr pData = Marshal.AllocHGlobal(Marshal.SizeOf(data));
+        Marshal.StructureToPtr(data, pData, false);
+        try
+        {
+            var action = new Guid("00AAC56B-CD44-11d0-8CC2-00C04FC295EE");      // WINTRUST_ACTION_GENERIC_VERIFY_V2
+            return WinVerifyTrust(new IntPtr(-1), ref action, pData);
+        }
+        finally { Marshal.FreeHGlobal(pData); Marshal.FreeHGlobal(pFile); }
+    }
+
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+    struct WINTRUST_FILE_INFO { public uint cbStruct; public string pcwszFilePath; public IntPtr hFile; public IntPtr pgKnownSubject; }
+
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+    struct WINTRUST_DATA
+    {
+        public uint cbStruct; public IntPtr pPolicyCallbackData, pSIPClientData; public uint dwUIChoice, fdwRevocationChecks, dwUnionChoice;
+        public IntPtr pFile; public uint dwStateAction; public IntPtr hWVTStateData; public IntPtr pwszURLReference;
+        public uint dwProvFlags, dwUIContext; public IntPtr pSignatureSettings;
+    }
+
+    [DllImport("wintrust.dll", CharSet = CharSet.Unicode)] static extern int WinVerifyTrust(IntPtr hwnd, ref Guid action, IntPtr data);
+}

@@ -54,7 +54,7 @@ Designed and Created by Project Moon Pi
 2. Choose where to install it (or keep the suggested folder), whether phones on your Wi-Fi may open the map,
    whether it starts when you sign in and whether Start and Stop go on your Desktop, then click Install. If this PC doesn't have Python 3.11 or newer, it installs Python from python.org for you too
    (no admin permission needed).
-   If you chose phones, a note comes up before Windows asks to allow Windows PowerShell to make changes:
+   If you chose phones, a note comes up before Windows asks to allow Install Train Tracker.exe to make changes:
    click Yes (that opens the firewall for them).
 3. Click Finish. Leave "Open the map now" ticked to see the map.
 
@@ -140,8 +140,8 @@ def build(platform):
               if p.is_file() and "__pycache__" not in p.parts and ".egg-info" not in str(p)]
     files.append(ROOT / "installer/filecheck.py")   # (Repair and Update check the installed files with it)
     if windows:
-        files += sorted((ROOT / "installer/windows").glob("*.ps1")) + [ROOT / "installer/windows/brand_exe.py",
-                                                                         ROOT / "installer/windows/Uninstall Train Tracker.exe"]
+        # the Windows programs (built from installer/windows/src by build.sh: compiled C#, no PowerShell)
+        files += [ROOT / "installer/windows/Train Tracker.exe", ROOT / "installer/windows/Uninstall Train Tracker.exe"]
         files += sorted((ROOT / "installer/icons").glob("*.ico"))
     else:
         files += sorted(f for f in (ROOT / "installer/mac").iterdir() if f.suffix in (".sh", ".py"))
@@ -163,7 +163,7 @@ def build(platform):
                     data = data.replace(b"\r\n", b"\n").replace(b"\n", b"\r\n")
                 add(z, f.relative_to(ROOT).as_posix(), data)
                 count += 1
-            # the launchers (train and trash-can icons) open the installer's and uninstaller's windows
+            # the installer and uninstaller (train and trash-can icons), at the top of the folder
             for exe in ("Install Train Tracker.exe", "Uninstall Train Tracker.exe"):
                 add(z, exe, (ROOT / "installer/windows" / exe).read_bytes())
                 count += 1

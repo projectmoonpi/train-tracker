@@ -99,7 +99,7 @@ def installed_dir():
     app = Path(sys.prefix).parent
     if sys.platform == "darwin" and app == Path.home() / "Library/Application Support/Train Tracker":
         return app
-    if sys.platform == "win32" and (app / "stop.ps1").exists():
+    if sys.platform == "win32" and ((app / "Train Tracker.exe").exists() or (app / "stop.ps1").exists()):
         return app
     return None
 
@@ -159,9 +159,10 @@ class Tray:
         mac_stop = mac_stop / "Train Tracker/Stop Train Tracker.app/Contents/Resources/run.sh"
         if app and sys.platform == "darwin" and mac_stop.exists():
             subprocess.Popen([str(mac_stop)], start_new_session=True)
-        elif app and sys.platform == "win32":
-            subprocess.Popen(["powershell.exe", "-NoProfile", "-ExecutionPolicy", "Bypass", "-WindowStyle", "Hidden",
-                              "-File", str(app / "stop.ps1")], creationflags=0x08000000)    # no console window
+        elif app and sys.platform == "win32" and (app / "Train Tracker.exe").exists():
+            # the installed copy's own program (Stop Train Tracker's shortcut opens it too); DETACHED_PROCESS: it
+            # outlives this one
+            subprocess.Popen([str(app / "Train Tracker.exe"), "--stop"], creationflags=0x00000008)
         else:
             try:
                 os.kill(self.parent, signal.SIGTERM)

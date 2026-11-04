@@ -207,9 +207,15 @@ CI runs the tests and a build on Python 3.11–3.15 for every push and pull requ
 `python3 tools/make_icons.py` draws the Start, Stop and Uninstall icons (a locomotive at night with the
 Project Moon Pi patch) into `installer/icons/`, for both macOS (`.icns`) and Windows (`.ico`).
 
-`installer/windows/Install Train Tracker.exe` opens the Windows installer's window (with the train icon); it's built
-from `installer/windows/launcher.cs` by `installer/windows/build_launcher.ps1`, on Windows, with the C# compiler that
-comes with it. Rebuild it only if `launcher.cs` or the icon changes.
+The Windows installer is a compiled C# program, with no PowerShell anywhere (antivirus programs such as Bitdefender
+block a hidden PowerShell that downloads, compiles and asks for admin rights as malware). `installer/windows/src/*.cs`
+is built three times, by `installer/windows/build.sh` on a Mac with Mono (against .NET Framework 4.8's reference
+assemblies) or `build.ps1` on Windows, into **Install Train Tracker.exe**, **Uninstall Train Tracker.exe** and
+**Train Tracker.exe** (one program; what it does goes by its name). Train Tracker.exe is Start (`--no-browser` at
+sign-in), Stop (`--stop`) and Train Tracker's own process while it runs (`--run`, Python hidden beneath it, so Task
+Manager shows Train Tracker); the firewall change runs the same program with admin rights (`--firewall`). `App.cs`
+holds what's Train Tracker's own; the other files are shared with SkyScope and Aviator Trail. Commit the rebuilt
+.exe files.
 
 ### Releasing
 
@@ -261,8 +267,9 @@ comes with it. Rebuild it only if `launcher.cs` or the icon changes.
 * [Python](https://www.python.org) (PSF License), which the Mac and Windows installers download from python.org when it's missing
 * [aiohttp](https://github.com/aio-libs/aiohttp), Apache-2.0
 * Menu bar / taskbar icon (installed copies): [pystray](https://github.com/moses-palmer/pystray) (LGPL-3.0),
-  [Pillow](https://python-pillow.org) (MIT-CMU) and, on a Mac, [PyObjC](https://github.com/ronaldoussoren/pyobjc) (MIT);
-  `installer/windows/brand_exe.py` is adapted from Project Moon Pi's SkyScope
+  [Pillow](https://python-pillow.org) (MIT-CMU) and, on a Mac, [PyObjC](https://github.com/ronaldoussoren/pyobjc) (MIT)
+* Windows installer: C# on Microsoft's .NET Framework 4.8 (Windows Forms), built with [Mono](https://www.mono-project.com)'s
+  C# compiler (Roslyn, MIT); shared with Project Moon Pi's SkyScope
 * [gtfs-realtime-bindings](https://github.com/MobilityData/gtfs-realtime-bindings), Apache-2.0
 * [protobuf](https://github.com/protocolbuffers/protobuf), BSD-3-Clause
 * [certifi](https://github.com/certifi/python-certifi) (Mozilla's CA certificates), MPL-2.0

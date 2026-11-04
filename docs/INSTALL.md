@@ -139,7 +139,7 @@ connections, click **Allow**. Then see section 5.
    installer signed by the Python Software Foundation, and installs it just for you, with no admin permission
    needed.
 4. A progress bar shows each step (about a minute). If you chose phones and the firewall needs opening, a note
-   says Windows is about to ask whether **Windows PowerShell** may make changes: click **Yes**.
+   says Windows is about to ask whether **Install Train Tracker.exe** may make changes: click **Yes**.
 5. Click **Finish**. Leave **Open the map now** ticked to see the map in your browser. The very first start
    downloads the rail map and schedules, so trains can take another minute or two to appear. You can delete
    the downloaded folder now.
