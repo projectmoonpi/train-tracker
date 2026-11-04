@@ -4,6 +4,8 @@ All notable changes to this project are listed here. Versions follow [Semantic V
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-11-04
+
 - **1.0.0: Train Tracker's first production release.** It's out of testing.
 - Windows installer rewritten as compiled programs (Install Train Tracker.exe, Uninstall Train Tracker.exe and
   Train Tracker.exe), with no PowerShell: Bitdefender Free's Advanced Threat Defense blocked the old hidden
