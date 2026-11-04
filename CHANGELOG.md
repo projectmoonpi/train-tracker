@@ -4,6 +4,13 @@ All notable changes to this project are listed here. Versions follow [Semantic V
 
 ## [Unreleased]
 
+- **1.0.0: Train Tracker's first production release.** It's out of testing.
+- Windows installer rewritten as compiled programs (Install Train Tracker.exe, Uninstall Train Tracker.exe and
+  Train Tracker.exe), with no PowerShell: Bitdefender Free's Advanced Threat Defense blocked the old hidden
+  PowerShell installer as malware. The window, pages and Update / Repair / Reinstall from scratch work as
+  before. Train Tracker.exe starts and stops Train Tracker and is what Task Manager shows; the firewall rule
+  for phones is set without PowerShell. Tested with Bitdefender and Windows Defender: no detections.
+
 - Installers (Mac and Windows): the three ways to install over an existing Train Tracker now each do their own
   job. **Update** compares the installed files with the new installer's (listing what changed, what's new and
   what's no longer needed) and updates those; the parts it runs on change only where the new version needs them
