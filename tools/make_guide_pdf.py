@@ -29,7 +29,7 @@ ROOT = Path(__file__).resolve().parent.parent
 SRC = ROOT / "docs" / "INSTALL.md"
 OUT = ROOT / "docs" / "US-Train-Tracker-Install-Guide.pdf"
 LOGO = ROOT / "src" / "train_tracker" / "web" / "img" / "moon-pi-logo.png"
-REPO = "https://github.com/ricsne2010/train-tracker"
+REPO = "https://github.com/projectmoonpi/train-tracker"
 FONT_DIRS = [os.environ.get("GUIDE_FONT_DIR", ""), "/usr/share/fonts/truetype/dejavu", str(Path.home() / "Library/Fonts"),
              "/Library/Fonts", "/Applications/FreeCAD.app/Contents/Resources/fonts",
              "/Applications/FreeCAD.app/Contents/Resources/lib/python3.11/site-packages/matplotlib/mpl-data/fonts/ttf"]

@@ -51,8 +51,8 @@ The server is light: it sits at almost no CPU between updates. It runs in the ba
 
 ### Step 1: Download US Train Tracker
 
-1. Download **[US Train Tracker for Mac](https://github.com/ricsne2010/train-tracker/releases/latest/download/US-Train-Tracker-for-Mac.zip)** (it's also on the
-   [Releases page](https://github.com/ricsne2010/train-tracker/releases/latest), as **US-Train-Tracker-for-Mac.zip**).
+1. Download **[US Train Tracker for Mac](https://github.com/projectmoonpi/train-tracker/releases/latest/download/US-Train-Tracker-for-Mac.zip)** (it's also on the
+   [Releases page](https://github.com/projectmoonpi/train-tracker/releases/latest), as **US-Train-Tracker-for-Mac.zip**).
 2. Open the downloaded zip (Safari usually unzips it for you). You get a folder named
    **US Train Tracker for Mac**, with a READ ME FIRST note and this guide inside.
 
@@ -100,8 +100,8 @@ connections, click **Allow**. Then see section 5.
 
 ### Step 1: Download US Train Tracker
 
-1. Download **[US Train Tracker for Windows](https://github.com/ricsne2010/train-tracker/releases/latest/download/US-Train-Tracker-for-Windows.zip)** (it's also on the
-   [Releases page](https://github.com/ricsne2010/train-tracker/releases/latest), as **US-Train-Tracker-for-Windows.zip**).
+1. Download **[US Train Tracker for Windows](https://github.com/projectmoonpi/train-tracker/releases/latest/download/US-Train-Tracker-for-Windows.zip)** (it's also on the
+   [Releases page](https://github.com/projectmoonpi/train-tracker/releases/latest), as **US-Train-Tracker-for-Windows.zip**).
 2. In your Downloads folder, right-click the zip and choose **Extract All…**. You get a folder named
    **US Train Tracker for Windows**, with a READ ME FIRST note and this guide inside.
 
@@ -185,12 +185,12 @@ your home Wi-Fi or a network cable.
 ### Step 2: Install US Train Tracker
 
 Type these on the Pi, one line at a time. Replace `0.3.0` with the newest version on the
-[Releases page](https://github.com/ricsne2010/train-tracker/releases/latest).
+[Releases page](https://github.com/projectmoonpi/train-tracker/releases/latest).
 
 ```
 sudo apt update && sudo apt install -y python3-venv
 python3 -m venv ~/train-tracker
-~/train-tracker/bin/pip install https://github.com/ricsne2010/train-tracker/releases/download/v0.3.0/train_tracker-0.3.0-py3-none-any.whl
+~/train-tracker/bin/pip install https://github.com/projectmoonpi/train-tracker/releases/download/v0.3.0/train_tracker-0.3.0-py3-none-any.whl
 ~/train-tracker/bin/train-tracker --host 0.0.0.0
 ```
 
@@ -201,7 +201,7 @@ stop it, and continue.
 ### Step 3: Start it automatically at power-on
 
 ```
-curl -LO https://raw.githubusercontent.com/ricsne2010/train-tracker/main/tools/train-tracker@.service
+curl -LO https://raw.githubusercontent.com/projectmoonpi/train-tracker/main/tools/train-tracker@.service
 sudo cp train-tracker@.service /etc/systemd/system/
 sudo systemctl enable --now train-tracker@$USER
 ```
@@ -268,7 +268,7 @@ Raspberry Pi) or `C:\Users\<your name>\.train-tracker` (Windows).
 | VRE shows 0 trains | Normal outside weekday rush hours |
 | Metra, Caltrain, Metrolink or NJ Transit say "needs an API key" | See section 8 |
 
-Still stuck? Open an issue on the [GitHub page](https://github.com/ricsne2010/train-tracker/issues).
+Still stuck? Open an issue on the [GitHub page](https://github.com/projectmoonpi/train-tracker/issues).
 
 ---
 

@@ -172,7 +172,7 @@ New-Item -Path $UninstallKey -Force | Out-Null
 foreach ($v in @(@('DisplayName', 'US Train Tracker'), @('DisplayVersion', "$version"), @('Publisher', 'Project Moon Pi'),
                  @('DisplayIcon', (Join-Path $AppDir 'app.ico')), @('InstallLocation', $AppDir),
                  @('UninstallString', $uninstall), @('QuietUninstallString', "$uninstall -Quiet"),
-                 @('URLInfoAbout', 'https://github.com/ricsne2010/train-tracker'),
+                 @('URLInfoAbout', 'https://github.com/projectmoonpi/train-tracker'),
                  @('InstallDate', (Get-Date -Format 'yyyyMMdd')))) {
     New-ItemProperty -Path $UninstallKey -Name $v[0] -Value $v[1] -PropertyType String -Force | Out-Null
 }
