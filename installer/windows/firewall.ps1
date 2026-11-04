@@ -1,9 +1,11 @@
 # Let phones and tablets on your home network reach Train Tracker (or stop letting them).
 #   firewall.ps1 -Allow -Program <pythonw.exe>   makes sure phones can connect; prints Allowed / AllowedPublic / Declined
 #   firewall.ps1                                  removes our rule
+#   -Quiet                                        no note before Windows' admin prompt (unattended installs)
 # Reading rules works without admin rights (netsh); changing them needs admin, so Windows asks once, and only
-# when something actually needs changing. Designed and Created by Project Moon Pi.
-param([switch]$Allow, [int]$Port = 7500, [string]$Program = '')
+# when something actually needs changing; a note says so first, as Windows' prompt names only Windows PowerShell.
+# Designed and Created by Project Moon Pi.
+param([switch]$Allow, [int]$Port = 7500, [string]$Program = '', [switch]$Quiet)
 $name = 'US Train Tracker (phones on your network)'
 
 function Get-InboundRules {
@@ -36,6 +38,17 @@ function Invoke-Admin($commands) {
     $script = ($commands -join "`n") + "`nexit 0"
     try {
         if ($admin) { Invoke-Expression ($commands -join "`n"); return $true }
+        if (-not $Quiet) {
+            Add-Type -AssemblyName System.Windows.Forms
+            $why = if ($Allow) {
+                "Click Yes: that lets phones and tablets on your home network reach Train Tracker. It opens only Train Tracker's port, and only on home (Private) networks."
+            } else {
+                "Click Yes: that closes the firewall opening Train Tracker made for phones. (If you click No, Train Tracker is still removed; only that firewall setting stays.)"
+            }
+            $null = [System.Windows.Forms.MessageBox]::Show(
+                "Next, Windows asks: `"Do you want to allow this app to make changes to your device?`" for Windows PowerShell.`n`n$why",
+                'Train Tracker', 'OK', 'Information')
+        }
         $encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($script))
         $p = Start-Process powershell.exe -Verb RunAs -Wait -PassThru -WindowStyle Hidden -ArgumentList "-NoProfile -EncodedCommand $encoded"
         return ($p.ExitCode -eq 0)

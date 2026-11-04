@@ -80,11 +80,47 @@ function homePadding() {
   return pad;
 }
 
-// MapLibre 6 needs WebGL 2 and a browser from 2023 on (Safari 16.4): say so rather than leave a blank page
-if (!window.maplibregl || !document.createElement("canvas").getContext("webgl2")) {
-  document.querySelector("#splash .loading").textContent =
-    "This browser is too old for the map. Update it (iPhone and iPad: iOS 16.4 or newer), or use current Safari, Chrome, Edge or Firefox.";
-  throw new Error("US Train Tracker needs a browser with WebGL 2 and JavaScript modules");
+// Something stopping the map, or worth knowing, shown under the logo in a steady box that's easy to read (instead
+// of the small pulsing "Loading" line): a heading, what's wrong, and numbered steps to fix it
+function splashNotice(title, text, steps = []) {
+  const box = document.querySelector("#splash .loading");
+  box.className = "loading notice";
+  box.replaceChildren();
+  const h = document.createElement("strong");
+  h.textContent = title;
+  const p = document.createElement("p");
+  p.textContent = text;
+  box.append(h, p);
+  if (steps.length) {
+    const ol = document.createElement("ol");
+    for (const step of steps) { const li = document.createElement("li"); li.textContent = step; ol.append(li); }
+    box.append(ol);
+  }
+}
+
+// MapLibre 6 needs JavaScript modules (a browser from 2023 on: Safari 16.4) and WebGL 2. Without them, say which
+// and how to fix it (the logo still plays) rather than leave a blank page
+{
+  const modules = "noModule" in HTMLScriptElement.prototype;
+  const problem = !modules ? ["This browser is too old for the map",
+      "US Train Tracker needs a web browser from 2023 or later.",
+      ["Update this browser, or open the map in current Safari, Chrome, Edge or Firefox.",
+       "On an iPhone or iPad, update to iOS 16.4 or newer."]]
+    : !window.maplibregl ? ["The map didn't load",
+      "Part of the map page didn't arrive from Train Tracker.",
+      ["Reload this page.", "If it happens again, run the Train Tracker installer again to repair it."]]
+    : !document.createElement("canvas").getContext("webgl2") ? ["This browser can't draw the map",
+      "The map is drawn with the browser's WebGL graphics, and they're turned off or not available here.",
+      ["Easiest: open the map in Edge or Chrome, which can draw it even without graphics support.",
+       "To use Firefox: type about:config in its address bar and accept the warning, search for webgl.force-enabled, " +
+       "set it to true (double-click it), then close and reopen Firefox.",
+       "In Chrome or Edge: Settings › System › turn on “Use graphics acceleration when available”, then restart it."]]
+    : null;
+  if (problem) {
+    splashNotice(...problem);
+    SplashFX.play(document.getElementById("splash-logo"), "img/moon-pi-logo").catch(() => {});
+    throw new Error(problem[0]);
+  }
 }
 
 const map = new maplibregl.Map({
@@ -997,10 +1033,35 @@ function applyOptions() {
 applyOptions();
 
 // ---------- open on your phone ----------
-// Shown when the server listens on the network (started with --host 0.0.0.0), with a QR code of its address.
+// Shown when the server listens on the network (started with --host 0.0.0.0), with a QR code of its address. In a
+// virtual machine on the VM program's own private network, phones on the Wi-Fi can't reach that address: say so
+// instead of showing a QR code that can't work.
 fetch("api/info").then((r) => r.json()).then((info) => {
   if (!info.phone_url) return;
   document.getElementById("phone").hidden = false;
+  const vm = info.vm, what = vm && (vm.name.startsWith("a ") ? vm.name : `a ${vm.name} virtual machine`);
+  if (vm && vm.private) {
+    const note = document.getElementById("phone-vm");
+    // where to switch the VM onto the home network, in each VM program
+    const bridged = {
+      VMware: "in VMware, shut the virtual machine down, open its Settings › Network Adapter and choose Bridged Networking",
+      Parallels: "in Parallels, open the virtual machine's Configure › Hardware › Network and choose Default Adapter (Bridged)",
+      VirtualBox: "in VirtualBox, open the virtual machine's Settings › Network and choose Bridged Adapter",
+      "Hyper-V": "in Hyper-V Manager, connect the virtual machine to an External virtual switch",
+    }[vm.name] || "in your virtual machine program, set the virtual machine's network to Bridged";
+    note.textContent = `This computer is ${what} on its own private network, so phones and tablets on your Wi-Fi ` +
+      `can't reach it: open the map on this computer instead. To use phones, ${bridged}, then stop and start ` +
+      "Train Tracker so it finds its new address.";
+    note.hidden = false;
+    document.getElementById("phone-reach").hidden = true;
+    return;
+  }
+  if (vm) {
+    const hint = document.getElementById("phone-vm-hint");
+    hint.textContent = `This computer is ${what}. If your phone can't open this address, the virtual machine is on a ` +
+      "private network that phones can't reach.";
+    hint.hidden = false;
+  }
   const a = document.getElementById("phone-url");
   a.href = a.textContent = info.phone_url;
   const draw = () => {
@@ -1034,6 +1095,13 @@ SplashFX.play(document.getElementById("splash-logo"), "img/moon-pi-logo")
   .finally(() => splashReady("intro"));
 setTimeout(hideSplash, 8000);   // never hold the map back for long
 document.getElementById("splash").addEventListener("click", hideSplash);
+
+// No internet: the server keeps the map's track and schedules, but live trains and the background map need it
+if (!navigator.onLine) splashNotice("No internet connection",
+  "Live trains and the background map need the internet. The map opens as soon as it's back; Train Tracker keeps trying.",
+  ["Check this computer's Wi-Fi or network cable."]);
+addEventListener("offline", () => toast("No internet connection: live trains pause until it's back."));
+addEventListener("online", () => toast("Back online."));
 
 // ---------- live connection ----------
 let lastUpdate = null, retry = 1000;

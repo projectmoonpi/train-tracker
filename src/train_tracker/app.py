@@ -27,6 +27,7 @@ TRAIL_S = 15 * 60                  # how far back each train's trail goes
 STATIC_REFRESH_S = 6 * 3600        # how often to check for new schedules
 log = logging.getLogger("trains")
 mimetypes.add_type("application/manifest+json", ".webmanifest")
+mimetypes.add_type("text/javascript", ".mjs")      # MapLibre's module (browsers insist on a JavaScript type)
 
 
 def load_dotenv(path: Path):
@@ -224,7 +225,7 @@ async def status_handler(request):
 async def info_handler(request):
     """Version, the address phones on this network can use (when the server listens beyond this computer),
     and for the menu bar / taskbar icon, when it started and how many trains are on the map."""
-    return web.json_response({"version": __version__, "phone_url": request.app.get("phone_url"),
+    return web.json_response({"version": __version__, "phone_url": request.app.get("phone_url"), "vm": request.app.get("vm"),
                               "since": request.app["started"], "trains": len(request.app["hub"].vehicles)})
 
 
@@ -343,6 +344,7 @@ def make_app(config_path: Path = DEFAULT_CONFIG, data_dir: Path = DEFAULT_DATA, 
              phone_url=None):
     app = web.Application()
     app["phone_url"] = phone_url
+    app["vm"] = None
     app["hub"] = Hub(json.loads(config_path.read_text()))
     app["data_dir"] = data_dir
     app["cell_locks"] = {}
@@ -426,12 +428,20 @@ def main(argv=None):
     load_dotenv(Path.cwd() / ".env")
     load_dotenv(args.data_dir / ".env")
     phone_url = None
+    vm_info = None
     if args.host not in ("127.0.0.1", "localhost", "::1"):
         ip = net.lan_address() if args.host in ("0.0.0.0", "::", "") else args.host
         if ip:
             phone_url = f"http://{ip}:{args.port}"
             log.info("On a phone or tablet on this network, open %s", phone_url)
+            vm = net.virtual_machine()
+            if vm:
+                private = net.vm_private(vm, ip, net.default_gateway(ip))
+                vm_info = {"name": vm, "private": private}
+                log.info("This computer is %s%s", vm if vm.startswith("a ") else f"a {vm} virtual machine",
+                         " on its own private network: phones on the Wi-Fi can't reach it" if private else "")
     app = make_app(args.config, args.data_dir, args.allow_remote_settings, phone_url)
+    app["vm"] = vm_info
     if args.open:
         async def open_browser(app):
             import webbrowser

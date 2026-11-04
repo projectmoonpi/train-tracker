@@ -12,7 +12,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Trains">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
-<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@6.16.0/dist/maplibre-gl.css">
+<link rel="stylesheet" href="vendor/maplibre-gl-6.16.0/maplibre-gl.css">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -66,10 +66,14 @@
   </details>
   <details id="phone" hidden>
     <summary>Open on your phone</summary>
+    <p class="vm-note" id="phone-vm" hidden></p>
+    <div id="phone-reach">
     <p>On a phone or tablet on the same Wi-Fi, scan this or type the address:</p>
     <div id="phone-qr"></div>
     <p><a id="phone-url" href="#"></a></p>
+    <p class="hint" id="phone-vm-hint" hidden></p>
     <p class="hint">Then use Share → Add to Home Screen (iPhone) or ⋮ → Add to Home screen (Android) for a Train Tracker icon.</p>
+    </div>
   </details>
   <details id="credits">
     <summary>About and credits</summary>
@@ -92,15 +96,16 @@
   </details>
   <button id="toggle" aria-label="Toggle panel">☰</button>
 </aside>
-<!-- MapLibre 6 comes only as a module; the deferred scripts after it run in order, once it has loaded -->
+<!-- MapLibre 6 comes only as a module; the deferred scripts after it run in order, once it has loaded. It and the
+     QR code maker come with Train Tracker (vendor/), so the page doesn't depend on anything downloaded. -->
 <script type="module">
-  import * as maplibregl from "https://unpkg.com/maplibre-gl@6.16.0/dist/maplibre-gl.mjs";
+  import * as maplibregl from "./vendor/maplibre-gl-6.16.0/maplibre-gl.mjs";
   window.maplibregl = maplibregl;
 </script>
 <script src="track.js" defer></script>
 <script src="splashfx.js" defer></script>
 <script src="more.js" defer></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js" defer></script>
+<script src="vendor/qrcode-generator-1.4.4/qrcode.js" defer></script>
 <script src="app.js" defer></script>
 </body>
 </html>

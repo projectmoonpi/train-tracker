@@ -10,8 +10,8 @@ Live Amtrak and commuter-rail positions on a map of US passenger track, in your 
 
 | | |
 |---|---|
-| 🍎 **[Download for Mac](https://github.com/projectmoonpi/train-tracker/releases/latest/download/US-Train-Tracker-for-Mac.zip)** | Open the zip, double-click **Install Train Tracker.command** |
-| 🪟 **[Download for Windows](https://github.com/projectmoonpi/train-tracker/releases/latest/download/US-Train-Tracker-for-Windows.zip)** | Extract the zip, double-click **Install Train Tracker.bat** |
+| 🍎 **[Download for Mac](https://github.com/projectmoonpi/train-tracker/releases/latest/download/US-Train-Tracker-for-Mac.zip)** | Open the zip, double-click **Install Train Tracker** |
+| 🪟 **[Download for Windows](https://github.com/projectmoonpi/train-tracker/releases/latest/download/US-Train-Tracker-for-Windows.zip)** | Extract the zip, double-click **Install Train Tracker** |
 
 Both need Python 3.11 or newer: if the computer doesn't have it, the installer offers to install it from
 [python.org](https://www.python.org/downloads/) for you. The installer sets Train Tracker up as a background service with **Start** and **Stop** icons. Step by step, including Raspberry Pi, iPhone and
@@ -77,12 +77,17 @@ shared beyond your own network unless you set up remote access (the guide covers
 **The easy way (Mac or Windows):** download **[for Mac](https://github.com/projectmoonpi/train-tracker/releases/latest/download/US-Train-Tracker-for-Mac.zip)** or **[for Windows](https://github.com/projectmoonpi/train-tracker/releases/latest/download/US-Train-Tracker-for-Windows.zip)** (also on the
 [latest release](../../releases/latest)), unzip it and double-click **Install Train Tracker**. The installer:
 
-* installs it for you (Mac: `~/Library/Application Support/Train Tracker`; Windows: `%LOCALAPPDATA%\Train Tracker`),
-* asks whether phones on your Wi-Fi may open the map, and whether it should start when you log in,
+* installs it for you (Mac: `~/Library/Application Support/Train Tracker`; Windows: `%LOCALAPPDATA%\Programs\Project Moon Pi\Train Tracker`,
+  or a folder you choose),
+* asks whether phones on your Wi-Fi may open the map, whether it should start when you log in, and whether to put
+  Start and Stop on your Desktop,
 * sets it up as a **background service** (a LaunchAgent on macOS, a hidden process on Windows), and
-* puts three icons on your Desktop (and in Applications or the Start menu): **Start Train Tracker** starts the
-  service and opens the map; **Stop Train Tracker** shuts it down; **Uninstall Train Tracker** removes it
-  cleanly. On Windows it's also listed in **Settings › Apps**, whose Uninstall button does the same.
+* puts three icons in **Applications › Train Tracker** (Mac) or the **Start menu › Train Tracker** (Windows):
+  **Start Train Tracker** starts the service and opens the map; **Stop Train Tracker** shuts it down;
+  **Uninstall Train Tracker** removes it cleanly (in the Windows Start menu it's called **Remove Train Tracker**,
+  as Windows hides Start menu items named Uninstall). Start and Stop go on the Desktop too if you choose. On
+  Windows **Uninstall Train Tracker** is also in the install folder and the downloaded folder, and it's listed in
+  **Settings › Apps**, whose Uninstall button does the same.
 * shows a **train icon in the menu bar** (Mac) or **by the clock** (Windows) while it runs: its menu says since
   when and how many trains are on the map, and opens the map or the API keys page, or stops Train Tracker.
   Activity Monitor and Task Manager list it as **Train Tracker**.
@@ -202,6 +207,10 @@ CI runs the tests and a build on Python 3.11–3.15 for every push and pull requ
 `python3 tools/make_icons.py` draws the Start, Stop and Uninstall icons (a locomotive at night with the
 Project Moon Pi patch) into `installer/icons/`, for both macOS (`.icns`) and Windows (`.ico`).
 
+`installer/windows/Install Train Tracker.exe` opens the Windows installer's window (with the train icon); it's built
+from `installer/windows/launcher.cs` by `installer/windows/build_launcher.ps1`, on Windows, with the C# compiler that
+comes with it. Rebuild it only if `launcher.cs` or the icon changes.
+
 ### Releasing
 
 1. Write the changes under `## [Unreleased]` in [CHANGELOG.md](CHANGELOG.md) and commit.
@@ -246,7 +255,7 @@ Project Moon Pi patch) into `installer/icons/`, for both macOS (`.icns`) and Win
 
 **Code, map and fonts**
 
-* [MapLibre GL JS](https://maplibre.org) 6.16.0, BSD-3-Clause
+* [MapLibre GL JS](https://maplibre.org) 6.16.0, BSD-3-Clause (included in `web/vendor/`, with its licence)
 * Basemap tiles: © [OpenFreeMap](https://openfreemap.org), © [OpenMapTiles](https://openmaptiles.org), map data © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors (ODbL)
 * Noto Sans (via the OpenFreeMap glyphs), SIL Open Font License 1.1
 * [Python](https://www.python.org) (PSF License), which the Mac and Windows installers download from python.org when it's missing
@@ -257,7 +266,7 @@ Project Moon Pi patch) into `installer/icons/`, for both macOS (`.icns`) and Win
 * [gtfs-realtime-bindings](https://github.com/MobilityData/gtfs-realtime-bindings), Apache-2.0
 * [protobuf](https://github.com/protocolbuffers/protobuf), BSD-3-Clause
 * [certifi](https://github.com/certifi/python-certifi) (Mozilla's CA certificates), MPL-2.0
-* [qrcode-generator](https://github.com/kazuhikoarase/qrcode-generator) by Kazuhiko Arase, MIT (the "Open on your phone" QR code)
+* [qrcode-generator](https://github.com/kazuhikoarase/qrcode-generator) 1.4.4 by Kazuhiko Arase, MIT (the "Open on your phone" QR code; included in `web/vendor/`)
 * Printable guide: [reportlab](https://www.reportlab.com/opensource/) (BSD) and [DejaVu Sans](https://dejavu-fonts.github.io/) (Bitstream Vera / DejaVu licence)
 * Development: [pytest](https://pytest.org) (MIT), [build](https://github.com/pypa/build) (MIT)
 

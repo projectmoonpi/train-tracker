@@ -58,28 +58,42 @@ The server is light: it sits at almost no CPU between updates. It runs in the ba
 
 ### Step 2: Run the installer
 
-1. In that folder, double-click **Install Train Tracker.command**.
+1. In that folder, double-click **Install Train Tracker** (the train icon).
 2. macOS may say it can't verify the developer, because the installer isn't from the App Store. To allow it:
-   open **System Settings → Privacy & Security**, scroll down to the message about "Install Train
-   Tracker.command", and click **Open Anyway**. (On macOS 14 or older you can instead Control-click the
-   file, choose **Open**, then **Open** again.)
-3. A Terminal window opens. Train Tracker runs on Python 3.11 or newer. If this Mac doesn't have it, the
-   installer offers to install it: click **Install Python**, and enter your Mac password when macOS asks. It
-   downloads Python 3.14 from [python.org](https://www.python.org/) (about 75 MB), checks it's the genuine
-   installer signed by the Python Software Foundation, and installs it. If Python is already installed, you
-   won't see this question.
-4. The installer asks two questions:
-   - **Phones too, or this Mac only?** Choose **Phones too** if you'll open the map on a phone or tablet.
-   - **Start by itself when you log in?** Choose **Yes** to have it always running while you're logged in.
-5. It installs (about a minute), starts Train Tracker, and opens the map in your browser. The very first start
-   downloads the rail map and schedules, so trains can take another minute or two to appear.
-6. When it says it's done, you can close the Terminal window and delete the downloaded folder.
+   open **System Settings → Privacy & Security**, scroll down to the message about "Install Train Tracker",
+   and click **Open Anyway**. (On macOS 14 or older you can instead Control-click it, choose **Open**, then
+   **Open** again.)
+3. Train Tracker runs on Python 3.11 or newer. If this Mac doesn't have it, the installer offers to install it
+   first: click **Install Python**, and enter your Mac password when macOS asks. It downloads Python 3.14 from
+   [python.org](https://www.python.org/) (about 75 MB), checks it's the genuine installer signed by the Python
+   Software Foundation, and installs it. If Python is already installed, you won't see this question.
+4. The installer's window opens, with the Project Moon Pi patch in the corner. Its first page checks this Mac
+   (macOS, Python, the internet, disk space, and whether Train Tracker is already installed). Click **Next**.
+   If something has a red ✗, fix it and click **Check again**.
+5. If Train Tracker is already installed, the next page says which version, with a button for each way to go on
+   (the Windows installer has the same page):
+   - **Update** (from an older version): compares the installed files with the new installer's and updates the
+     ones that differ. Your settings, maps and API keys are kept.
+   - **Repair** (the same version): checks every installed file and fixes any that are damaged or missing, then
+     sets up its apps and service again. Your settings, maps and API keys are kept.
+   - **Reinstall from scratch**: removes everything Train Tracker put on the computer, its settings and the
+     downloaded maps and schedules too (they download again on its first start), then installs it new. Only
+     your saved API keys are kept. Use it when something's wrong that Repair doesn't fix.
+6. Make your choices:
+   - **Phones and tablets on my Wi-Fi can open the map**: tick it if you'll open the map on a phone or tablet.
+   - **Start Train Tracker by itself when I log in**: tick it to have it always running while you're logged in.
+   - **Put Start and Stop Train Tracker on my Desktop**: they're in Applications › Train Tracker either way.
+7. Click **Install** (or **Update**, **Repair** or **Reinstall**) and watch the train run along the progress bar
+   (about a minute; **Show details** shows each step). Train Tracker starts as the last step.
+8. Click **Finish**. With **Open the map now** ticked, the map opens in your browser. The very first start
+   downloads the rail map and schedules, so trains can take another minute or two to appear. You can delete the
+   downloaded folder now.
 
 ### Start and stop
 
-Train Tracker runs quietly in the background: there's no window to keep open. Two icons control it, on your
-**Desktop** and in **Applications › Train Tracker** (a third, **Uninstall Train Tracker**, removes it: see
-section 9):
+Train Tracker runs quietly in the background: there's no window to keep open. Two icons control it, in
+**Applications › Train Tracker** and, if you chose that, on your **Desktop** (a third, **Uninstall Train
+Tracker**, in Applications › Train Tracker, removes it: see section 9):
 
 - **Start Train Tracker** (green ▶): starts it if it isn't running, and opens the map.
 - **Stop Train Tracker** (red ■): shuts it down. The map stops updating until you start it again.
@@ -107,24 +121,34 @@ connections, click **Allow**. Then see section 5.
 
 ### Step 2: Run the installer
 
-1. In that folder, double-click **Install Train Tracker.bat**.
+1. In that folder, double-click **Install Train Tracker** (the train icon).
 2. Windows may show "Windows protected your PC" because the installer isn't signed. Click **More info**, then
    **Run anyway**.
-3. Train Tracker runs on Python 3.11 or newer. If this PC doesn't have it, the installer offers to install it:
-   click **Yes**. It downloads Python 3.14 from [python.org](https://www.python.org/) (about 30 MB), checks
-   it's the genuine installer signed by the Python Software Foundation, and installs it just for you, with no
-   admin permission needed. If Python is already installed, you won't see this question.
-4. The installer asks two questions:
-   - **Should phones and tablets be able to open the map?** Choose **Yes** if you'll use a phone or tablet.
-   - **Start by itself when you sign in?** Choose **Yes** to have it always running while you're signed in.
-5. It installs (about a minute), starts Train Tracker, and opens the map in your browser. The very first start
-   downloads the rail map and schedules, so trains can take another minute or two to appear.
-6. Press a key to close the installer window. You can delete the downloaded folder now.
+3. The installer's window opens. Choose, then click **Install**:
+   - If Train Tracker is already installed, a page before this one has a button for each way to go on:
+     **Update**, **Repair** or **Reinstall from scratch** (what each does is in section 3, step 5). **< Back**
+     returns to it.
+   - **Install in**: where Train Tracker goes. Keep the suggested folder (in your user folder), or click
+     **Browse...** to pick another (Program Files needs admin permission, so it can't go there).
+   - **Let phones and tablets on my Wi-Fi open the map**: tick it if you'll use a phone or tablet.
+   - **Start Train Tracker when I sign in to Windows**: tick it to have it always running while you're signed in.
+   - **Put Start and Stop Train Tracker on the Desktop**: untick it to keep them in the Start menu only.
+
+   Train Tracker runs on Python 3.11 or newer. If this PC doesn't have it, the window says so and the installer
+   downloads Python 3.14 from [python.org](https://www.python.org/) (about 30 MB), checks it's the genuine
+   installer signed by the Python Software Foundation, and installs it just for you, with no admin permission
+   needed.
+4. A progress bar shows each step (about a minute). If you chose phones and the firewall needs opening, a note
+   says Windows is about to ask whether **Windows PowerShell** may make changes: click **Yes**.
+5. Click **Finish**. Leave **Open the map now** ticked to see the map in your browser. The very first start
+   downloads the rail map and schedules, so trains can take another minute or two to appear. You can delete
+   the downloaded folder now.
 
 ### Start and stop
 
-Train Tracker runs quietly in the background, with no window. Two shortcuts control it, on your **Desktop**
-and in the **Start menu › Train Tracker** (a third, **Uninstall Train Tracker**, removes it: see section 9):
+Train Tracker runs quietly in the background, with no window. Two shortcuts control it, in the **Start menu ›
+Train Tracker** and, if you chose that, on your **Desktop** (a third, **Uninstall Train Tracker**, in the Start
+menu, called **Remove Train Tracker** there, removes it: see section 9):
 
 - **Start Train Tracker** (green ▶): starts it if it isn't running, and opens the map.
 - **Stop Train Tracker** (red ■): shuts it down.
@@ -237,27 +261,34 @@ that railroad straight away.
 ## 9. Updating and removing
 
 **Updating (Mac or Windows):** download the new zip for your computer and run its installer, just like the
-first time. It stops Train Tracker, updates it, and keeps your settings, API keys and downloaded data.
-Running the installer again is also how you change your answers (phones, start at log-in).
+first time. It stops Train Tracker, compares the installed files with the new ones and updates those that
+differ, and keeps your settings, API keys and downloaded data. Running the installer again is also how you
+change your answers (phones, start at log-in, Desktop icons), and how you **Repair** it (checks every file and
+fixes damaged or missing ones) or **Reinstall from scratch** (removes everything except your saved API keys,
+then installs it new): see section 2.
 
 **Removing:**
 
-- **Mac:** double-click **Uninstall Train Tracker** on your Desktop (also in **Applications › Train Tracker**).
-  The first time, macOS asks whether Uninstall Train Tracker may access files in your Desktop folder: click
-  **OK**, so it can remove its icons from the Desktop. (If you don't, it tells you to drag them to the Trash.)
-- **Windows:** double-click **Uninstall Train Tracker** on your Desktop (also in **Start menu › Train Tracker**),
-  or open **Settings › Apps**, find **US Train Tracker** and click **Uninstall**.
+- **Mac:** double-click **Uninstall Train Tracker** in **Applications › Train Tracker**. Its window asks
+  whether to delete your data too (a tick box), then shows its progress until it's done. The first time, macOS
+  asks whether Uninstall Train Tracker may access files in your Desktop folder: click **Allow**, so it can
+  remove its icons from the Desktop. (If you don't, it tells you to drag them to the Trash.)
+- **Windows:** click **Remove Train Tracker** in **Start menu › Train Tracker**, or double-click **Uninstall
+  Train Tracker** in the folder you installed it in or in the downloaded folder beside **Install Train
+  Tracker**; or open **Settings › Apps**, find **US Train Tracker** and click **Uninstall**. A window asks
+  whether to delete your data too, then shows its progress until it's done.
 
-It removes the service, the icons and the program, then asks whether to delete your data too: the
-downloaded maps and schedules, and any API keys you saved. That data lives in `~/.train-tracker` (Mac and
-Raspberry Pi) or `C:\Users\<your name>\.train-tracker` (Windows).
+It removes the service, the icons and the program. Python stays, for anything else that uses it. Your data
+(the downloaded maps and schedules, and any API keys you saved) is kept unless you ticked the box to delete it,
+so installing again picks up where you left off. That data lives in `~/.train-tracker` (Mac and Raspberry Pi)
+or `C:\Users\<your name>\.train-tracker` (Windows).
 
 ## 10. Troubleshooting
 
 | What you see | What to do |
 |---|---|
 | "Needs Python 3.11 or newer" | Run the installer again and let it install Python. Or install Python yourself from [python.org](https://www.python.org/downloads/) (on Windows, tick **Add python.exe to PATH**), then run the installer again |
-| "Train Tracker didn't start" | Its messages say why: on a Mac in `~/Library/Logs/Train Tracker.log`, on Windows in `%LOCALAPPDATA%\Train Tracker\train-tracker.log`. A common cause is another program using port 7500 |
+| "Train Tracker didn't start" | Its messages say why: on a Mac in `~/Library/Logs/Train Tracker.log`, on Windows in `train-tracker.log` in the folder it's installed in (normally `%LOCALAPPDATA%\Programs\Project Moon Pi\Train Tracker`). A common cause is another program using port 7500 |
 | Stop says it's still running | Another program is serving on port 7500 (perhaps a copy started by hand). Close it, or restart the computer |
 | The browser didn't open | Open **http://127.0.0.1:7500** yourself |
 | No train icon in the menu bar or by the clock | Train Tracker isn't running: use Start Train Tracker. On Windows, also look under the **^** by the clock. If it's running (the map opens) but there's still no icon, run the installer again |

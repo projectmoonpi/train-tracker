@@ -4,12 +4,78 @@ All notable changes to this project are listed here. Versions follow [Semantic V
 
 ## [Unreleased]
 
+- Installers (Mac and Windows): the three ways to install over an existing Train Tracker now each do their own
+  job. **Update** compares the installed files with the new installer's (listing what changed, what's new and
+  what's no longer needed) and updates those; the parts it runs on change only where the new version needs them
+  to. **Repair** checks every installed file against the fingerprint pip recorded when it installed it, installs
+  again only the packages with damaged or missing files (its whole Python set-up, if that doesn't fix them), then
+  sets up the apps, shortcuts and service again. **Reinstall from scratch** removes everything Train Tracker put
+  on the computer (program, Python set-up, settings, apps and shortcuts, service, log, the downloaded maps and
+  schedules) except the saved API keys, then installs it new. The last page says what Repair and Update found. On the Mac, Update, Repair and Reinstall are buttons on a page of their own, each with what it does,
+  before the page with the phones, login and Desktop choices.
+  (installer/filecheck.py does the checking.)
+
+- Mac installer: **Install Train Tracker** is now an app with the train icon and its own window, made like the
+  M.O.S.S. RPi SD Card Creator's and SkyScope's. No more Terminal window. It checks the Mac first (macOS, Python,
+  internet, disk space, what's installed); offers **Update**, **Repair** or **Reinstall from scratch** when Train
+  Tracker is already there; asks about phones, start at login and Desktop icons on one page; then shows each step
+  on a progress bar that a little train runs along, into the Project Moon Pi patch. Train Tracker starts as the
+  last step, and the map opens only from Finish. Without Python 3.11 or newer with Tk, it offers python.org's
+  first. Uninstall Train Tracker uses the same window, with a tick box to also delete the maps and API keys. The
+  installer app is no longer changed by installing (pip builds from a copy).
+- Windows: if the installer stops before its window opens, Install Train Tracker says why (the end of its log)
+  instead of seeming to do nothing.
+- The release's downloads are built on macOS (the Mac installer app needs macOS's own tools).
+
+- In a virtual machine on its program's own private network (VMware's NAT, VirtualBox's, Parallels' Shared
+  network, Hyper-V's Default Switch), phones on the Wi-Fi can't reach Train Tracker's address: "Open on your
+  phone" now says so instead of showing a QR code that can't work, and how to put the virtual machine on the home
+  network (Bridged) in that VM program. A virtual machine on the home network still gets its QR code, with a
+  note in case the phone can't connect.
+
+- The map page no longer downloads anything to start: MapLibre GL JS 6.16.0 and the QR code maker come with
+  Train Tracker (web/vendor). With no internet the page still opens and says live trains and the background
+  map need it (and says so again if the connection drops, and when it's back).
+- Clearer messages instead of "This browser is too old": if the browser can't draw the map because its WebGL
+  graphics are off (Firefox on a virtual machine without graphics support, for example), it says so and what to
+  do, in a steady box under the logo (a heading, what's wrong and numbered steps; no pulsing small print). The
+  logo plays either way.
+- Windows installer: when Train Tracker is already installed it says which version, and offers **Update** (this
+  one's newer), **Repair** (the same version: installs it again and rebuilds its Python set-up) or **Reinstall
+  from scratch** (removes the program first; your maps and API keys are kept); for an older installer it warns
+  and Cancel keeps the newer one. The tick boxes start as the installed copy has them.
+- Firefox's real fix for "can't draw the map" (about:config › webgl.force-enabled), instead of a Settings option
+  current Firefox doesn't have.
+- Windows installer: checks for the internet before changing anything; without it, it says installing needs
+  the internet and nothing was changed. If an update fails after stopping a running Train Tracker, that copy is
+  started again. Updating pip no longer stops the install.
+
 - Mac: Uninstall Train Tracker now removes its icons from the Desktop too. macOS silently stopped it before; it
   now asks once for your OK (Start, Stop and Uninstall are small AppleScript apps that macOS knows by name).
 - Mac: Start, Stop and Uninstall are in the main **Applications › Train Tracker** folder (the one Finder shows),
   or your own Applications folder if your account can't add to the main one. An older install's folder in your
   own Applications folder is removed when you update.
 - No more setuptools warning about the licence field during install.
+- Windows: the installer is a proper window with the Project Moon Pi logo: choose phones and start-at-sign-in
+  with tick boxes, watch a smooth progress bar (with the Python download's real progress), and click Finish to
+  open the map (it no longer pops up over everything). No console window. It's started by **Install Train
+  Tracker.exe**, which has the train icon (a .bat file can't have one); the .bat is gone. Uninstall uses the
+  same window, with a progress bar until it's done. The installer logs to %TEMP%\Train Tracker install.log.
+- Choose where it's installed on Windows (Install in, with Browse...). New installs suggest
+  `%LOCALAPPDATA%\Programs\Project Moon Pi\Train Tracker`, where Windows keeps one user's programs, with Project
+  Moon Pi's other apps; an update goes back where it was. A folder that already holds other things gets a Train Tracker folder
+  inside it, so uninstalling can't take anything else with it.
+- Desktop icons are optional (a tick box on Windows, a question on the Mac), and Uninstall is no longer on the
+  Desktop: it's in Applications › Train Tracker on the Mac; on Windows it's **Remove Train Tracker** in the
+  Start menu (Windows hides Start menu items named Uninstall), and **Uninstall Train Tracker.exe** in the
+  install folder and beside the installer in the downloaded folder (it finds the installed copy).
+  The Start menu's Remove shortcut gets a fresh command on every install, as Windows otherwise kept hiding it
+  after an uninstall and reinstall.
+- Windows: uninstalling now removes the install folder itself (an empty folder used to stay behind, held by the
+  uninstaller's own process), and the Project Moon Pi folder once it's empty.
+- Windows: before Windows asks "Do you want to allow this app to make changes to your device?" for Windows
+  PowerShell (opening the firewall for phones when installing, or closing it when uninstalling), a note says
+  what it's for and to click Yes.
 
 ## [0.5.0] - 2026-10-31
 

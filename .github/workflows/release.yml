@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   release:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest    # (the Mac download is an app made with macOS's osacompile)
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
@@ -42,8 +42,8 @@ jobs:
         run: |
           {
             printf '## Download\n\n'
-            printf -- '- **Mac:** [US-Train-Tracker-for-Mac.zip](https://github.com/%s/releases/download/%s/US-Train-Tracker-for-Mac.zip): open it and double-click **Install Train Tracker.command**\n' "$GITHUB_REPOSITORY" "$GITHUB_REF_NAME"
-            printf -- '- **Windows:** [US-Train-Tracker-for-Windows.zip](https://github.com/%s/releases/download/%s/US-Train-Tracker-for-Windows.zip): extract it and double-click **Install Train Tracker.bat**\n' "$GITHUB_REPOSITORY" "$GITHUB_REF_NAME"
+            printf -- '- **Mac:** [US-Train-Tracker-for-Mac.zip](https://github.com/%s/releases/download/%s/US-Train-Tracker-for-Mac.zip): open it and double-click **Install Train Tracker**\n' "$GITHUB_REPOSITORY" "$GITHUB_REF_NAME"
+            printf -- '- **Windows:** [US-Train-Tracker-for-Windows.zip](https://github.com/%s/releases/download/%s/US-Train-Tracker-for-Windows.zip): extract it and double-click **Install Train Tracker**\n' "$GITHUB_REPOSITORY" "$GITHUB_REF_NAME"
             printf -- '- **Raspberry Pi / Linux:** the `.whl` file below (see the guide)\n\n'
             printf 'Both need Python 3.11 or newer; the installers offer to install it from python.org if it is missing. Step-by-step: the [Installation Guide](https://github.com/%s/blob/%s/docs/INSTALL.md), also attached as a PDF.\n\n## Changes\n\n' "$GITHUB_REPOSITORY" "$GITHUB_REF_NAME"
             cat notes.md

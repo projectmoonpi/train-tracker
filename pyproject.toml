@@ -29,7 +29,7 @@ train-tracker = "train_tracker.app:main"
 version = { attr = "train_tracker.__version__" }
 
 [tool.setuptools.package-data]
-train_tracker = ["feeds.json", "web/*", "web/img/*"]
+train_tracker = ["feeds.json", "web/*", "web/img/*", "web/vendor/*/*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
