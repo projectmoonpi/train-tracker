@@ -51,10 +51,10 @@ The server is light: it sits at almost no CPU between updates. It runs in the ba
 
 ### Step 1: Download US Train Tracker
 
-1. Download **[US Train Tracker for Mac](https://github.com/projectmoonpi/train-tracker/releases/download/v1.0.1/US-Train-Tracker-for-Mac-v1.0.1.zip)** (it's also on the
-   [Releases page](https://github.com/projectmoonpi/train-tracker/releases/latest), as **US-Train-Tracker-for-Mac-v1.0.1.zip**).
+1. Download **[US Train Tracker for Mac](https://github.com/projectmoonpi/train-tracker/releases/download/v1.0.2/US-Train-Tracker-for-Mac-v1.0.2.zip)** (it's also on the
+   [Releases page](https://github.com/projectmoonpi/train-tracker/releases/latest), as **US-Train-Tracker-for-Mac-v1.0.2.zip**).
 2. Open the downloaded zip (Safari usually unzips it for you). You get a folder named
-   **US Train Tracker 1.0.1 for Mac**, with a READ ME FIRST note and this guide inside.
+   **US Train Tracker 1.0.2 for Mac**, with a READ ME FIRST note and this guide inside.
 
 ### Step 2: Run the installer
 
@@ -114,10 +114,10 @@ connections, click **Allow**. Then see section 5.
 
 ### Step 1: Download US Train Tracker
 
-1. Download **[US Train Tracker for Windows](https://github.com/projectmoonpi/train-tracker/releases/download/v1.0.1/US-Train-Tracker-for-Windows-v1.0.1.zip)** (it's also on the
-   [Releases page](https://github.com/projectmoonpi/train-tracker/releases/latest), as **US-Train-Tracker-for-Windows-v1.0.1.zip**).
+1. Download **[US Train Tracker for Windows](https://github.com/projectmoonpi/train-tracker/releases/download/v1.0.2/US-Train-Tracker-for-Windows-v1.0.2.zip)** (it's also on the
+   [Releases page](https://github.com/projectmoonpi/train-tracker/releases/latest), as **US-Train-Tracker-for-Windows-v1.0.2.zip**).
 2. In your Downloads folder, right-click the zip and choose **Extract All…**. You get a folder named
-   **US Train Tracker 1.0.1 for Windows**, with a READ ME FIRST note and this guide inside.
+   **US Train Tracker 1.0.2 for Windows**, with a READ ME FIRST note and this guide inside.
 
 ### Step 2: Run the installer
 

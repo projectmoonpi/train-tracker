@@ -4,6 +4,8 @@ All notable changes to this project are listed here. Versions follow [Semantic V
 
 ## [Unreleased]
 
+## [1.0.2] - 2026-11-04
+
 - **Update from inside Train Tracker.** The map's *About and credits* now has **Updates**: it says when there's a
   newer version (**Check now** asks GitHub at once), and on the computer running Train Tracker, **Update to
   <version>** downloads it in the background, checks it's the file GitHub published (its SHA-256), unpacks it and
