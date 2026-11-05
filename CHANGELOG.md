@@ -4,6 +4,8 @@ All notable changes to this project are listed here. Versions follow [Semantic V
 
 ## [Unreleased]
 
+## [1.0.7] - 2026-11-05
+
 - Windows installer: its progress bar now matches the Mac installer's: the Project Moon Pi patch rides the bar's
   leading edge, and a little train (turning wheels, puffs of smoke) lays its track and runs into the patch.
 

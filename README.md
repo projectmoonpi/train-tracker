@@ -10,8 +10,8 @@ Live Amtrak and commuter-rail positions on a map of US passenger track, in your 
 
 | | |
 |---|---|
-| 🍎 **[Download for Mac](https://github.com/projectmoonpi/train-tracker/releases/download/v1.0.6/US-Train-Tracker-for-Mac-v1.0.6.dmg)** | Open it, double-click **Install Train Tracker** |
-| 🪟 **[Download for Windows](https://github.com/projectmoonpi/train-tracker/releases/download/v1.0.6/Install-US-Train-Tracker-for-Windows-v1.0.6.exe)** | Double-click it |
+| 🍎 **[Download for Mac](https://github.com/projectmoonpi/train-tracker/releases/download/v1.0.7/US-Train-Tracker-for-Mac-v1.0.7.dmg)** | Open it, double-click **Install Train Tracker** |
+| 🪟 **[Download for Windows](https://github.com/projectmoonpi/train-tracker/releases/download/v1.0.7/Install-US-Train-Tracker-for-Windows-v1.0.7.exe)** | Double-click it |
 
 Both need Python 3.11 or newer: if the computer doesn't have it, the installer offers to install it from
 [python.org](https://www.python.org/downloads/) for you. The installer sets Train Tracker up as a background service with **Start** and **Stop** icons. Step by step, including Raspberry Pi, iPhone and
@@ -74,7 +74,7 @@ shared beyond your own network unless you set up remote access (the guide covers
 
 ## Install and run
 
-**The easy way (Mac or Windows):** download **[for Mac](https://github.com/projectmoonpi/train-tracker/releases/download/v1.0.6/US-Train-Tracker-for-Mac-v1.0.6.dmg)** or **[for Windows](https://github.com/projectmoonpi/train-tracker/releases/download/v1.0.6/Install-US-Train-Tracker-for-Windows-v1.0.6.exe)** (also on the
+**The easy way (Mac or Windows):** download **[for Mac](https://github.com/projectmoonpi/train-tracker/releases/download/v1.0.7/US-Train-Tracker-for-Mac-v1.0.7.dmg)** or **[for Windows](https://github.com/projectmoonpi/train-tracker/releases/download/v1.0.7/Install-US-Train-Tracker-for-Windows-v1.0.7.exe)** (also on the
 [latest release](../../releases/latest)): one file. On a Mac, open the disk image and double-click **Install Train
 Tracker**; on Windows, double-click the downloaded installer. The installer:
 
