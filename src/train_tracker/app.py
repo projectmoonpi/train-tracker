@@ -340,6 +340,39 @@ async def on_cleanup(app):
     await app["session"].close()
 
 
+def _from_here(request) -> bool:
+    """A request from this computer, by a page Train Tracker served (not another site's page in a browser here)."""
+    import ipaddress
+    try:
+        local = ipaddress.ip_address((request.remote or "").split("%")[0]).is_loopback
+    except ValueError:
+        local = False
+    origin = request.headers.get("Origin")
+    return local and not (origin and origin.split("://", 1)[-1] != request.host)
+
+
+async def update_handler(request):
+    """A newer Train Tracker? (?now=1: ask GitHub now, for Check now), with Update to <version>'s progress."""
+    import asyncio
+    from . import updates
+    if request.query.get("now") == "1":
+        info = await asyncio.to_thread(updates.status, True, True)
+    else:
+        info = updates.status(True)
+    info["job"] = updates.job()
+    info["here"] = _from_here(request)       # (only this computer can start an update)
+    return web.json_response(info)
+
+
+async def update_start_handler(request):
+    """Update to <version>: only from this computer (it opens the installer here)."""
+    import asyncio
+    from . import updates
+    if not _from_here(request):
+        return web.json_response({"ok": False, "why": "Update from the computer running Train Tracker."}, status=403)
+    return web.json_response(await asyncio.to_thread(updates.start))
+
+
 def make_app(config_path: Path = DEFAULT_CONFIG, data_dir: Path = DEFAULT_DATA, allow_remote_settings=False,
              phone_url=None):
     app = web.Application()
@@ -361,6 +394,8 @@ def make_app(config_path: Path = DEFAULT_CONFIG, data_dir: Path = DEFAULT_DATA, 
     app.router.add_get("/api/station/{feed}/{id}", station_handler)
     app.router.add_get(f"/data/{narn.FILENAME}", track_handler)
     app.router.add_get(r"/api/lines/{cx:-?\d+}/{cy:-?\d+}", lines_handler)
+    app.router.add_get("/api/update", update_handler)
+    app.router.add_post("/api/update/start", update_start_handler)
     app.router.add_static("/", WEB)
     app.on_startup.append(on_startup)
     app.on_cleanup.append(on_cleanup)

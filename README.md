@@ -92,7 +92,10 @@ shared beyond your own network unless you set up remote access (the guide covers
   when and how many trains are on the map, and opens the map or the API keys page, or stops Train Tracker.
   Activity Monitor and Task Manager list it as **Train Tracker**.
 
-Run the installer again to update or to change your answers. With phones allowed, the map's panel shows the
+**Updates:** the map's *About and credits* says when there's a newer Train Tracker (**Check now** asks GitHub
+at once). On the computer running it, **Update to <version>** downloads the new version in the background, checks
+it's the file GitHub published, and opens its installer in front: click **Update** there, and your settings, maps
+and keys are kept. Run the installer again to change your answers. With phones allowed, the map's panel shows the
 address and a QR code to scan. Details, the Raspberry Pi setup and troubleshooting are in the
 [Installation Guide](docs/INSTALL.md).
 

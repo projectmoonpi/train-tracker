@@ -4,6 +4,12 @@ All notable changes to this project are listed here. Versions follow [Semantic V
 
 ## [Unreleased]
 
+- **Update from inside Train Tracker.** The map's *About and credits* now has **Updates**: it says when there's a
+  newer version (**Check now** asks GitHub at once), and on the computer running Train Tracker, **Update to
+  <version>** downloads it in the background, checks it's the file GitHub published (its SHA-256), unpacks it and
+  opens its installer in front, ready for you to click **Update**. Your settings, maps and API keys are kept.
+- The Windows installer's window opens in front of the browser and stays on top until it's clicked.
+
 ## [1.0.1] - 2026-11-04
 
 - The downloads now have the version in their names, so you can tell which Train Tracker you have:

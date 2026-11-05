@@ -169,6 +169,15 @@ device?"*: click **Yes**. If your Wi-Fi is set as a Public network, the installe
 (Settings → Network & Internet → Wi-Fi → your network → **Private network**) so phones can connect. Then see
 section 5.
 
+### Updates
+
+Open the map's panel, then **About and credits**: **Updates** says which version you have and whether there's a
+newer one (Train Tracker asks GitHub a few times a day; **Check now** asks at once). On the computer running Train
+Tracker, **Update to <version>** downloads the new version in the background, checks it's the file GitHub
+published, unpacks it and opens its installer in front of everything: click **Update** there. Train Tracker is
+stopped, updated and started again, and your settings, maps and API keys are kept. (Phones and other devices are
+told to update from that computer. **Or download it yourself** gets the zip to install by hand.)
+
 ## 5. Use it on an iPhone, iPad or Android phone
 
 1. Install with **Phones too** (sections 3 and 4; run the installer again to change your answer), or use a

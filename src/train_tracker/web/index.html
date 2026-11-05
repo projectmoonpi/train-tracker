@@ -78,6 +78,10 @@
   <details id="credits">
     <summary>About and credits</summary>
     <div class="about"><img src="img/moon-pi-logo-128.png" alt="Project Moon Pi"><p><strong>US Train Tracker</strong> <span id="version"></span><br>Designed and Created by Project Moon Pi</p></div>
+    <div id="updates"><h3>Updates</h3><p id="up-line">Checking for updates…</p>
+      <div class="up-btns"><button type="button" id="up-go" hidden>Update</button><button type="button" id="up-now">Check now</button></div>
+      <div class="up-bar" id="up-bar" hidden><div id="up-fill"></div></div>
+      <p class="up-job" id="up-job"></p><a id="up-get" hidden target="_blank" rel="noopener">Or download it yourself</a></div>
     <h3>Live data</h3>
     <ul id="creditlist"></ul>
     <h3>Credits</h3>
@@ -105,6 +109,7 @@
 <script src="track.js" defer></script>
 <script src="splashfx.js" defer></script>
 <script src="more.js" defer></script>
+<script src="updates.js" defer></script>
 <script src="vendor/qrcode-generator-1.4.4/qrcode.js" defer></script>
 <script src="app.js" defer></script>
 </body>

@@ -77,6 +77,17 @@ ul { list-style: none; margin: 0; padding: 0; }
 #credits .about { display: flex; align-items: center; gap: 10px; margin: 8px 0; }
 #credits .about img { width: 48px; height: 48px; }
 #credits .about p { margin: 0; color: var(--fg); }
+/* Updates (About and credits): Check now, Update to <version> with its progress */
+#updates p { margin: 4px 0; color: var(--fg); }
+#updates .up-btns { display: flex; gap: 8px; margin: 6px 0; flex-wrap: wrap; }
+#updates button { font: inherit; font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 6px; cursor: pointer;
+  border: 1px solid var(--ok); background: none; color: var(--ok); }
+#updates #up-go { background: var(--ok); color: #fff; }
+#updates button:disabled { opacity: .5; cursor: default; }
+#updates .up-bar { height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; margin: 4px 0; }
+#updates .up-bar div { height: 100%; width: 0; background: var(--ok); transition: width .3s; }
+#updates .up-job { color: var(--muted); }
+#updates a { color: var(--ok); }
 
 /* start-up splash: the Project Moon Pi patch while the map, track and trains load */
 #splash { position: fixed; inset: 0; z-index: 10; display: flex; flex-direction: column; align-items: center;
