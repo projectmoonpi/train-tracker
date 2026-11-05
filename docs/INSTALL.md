@@ -132,7 +132,8 @@ connections, click **Allow**. Then see section 5.
      **Browse...** to pick another (Program Files needs admin permission, so it can't go there).
    - **Let phones and tablets on my Wi-Fi open the map**: tick it if you'll use a phone or tablet.
    - **Start Train Tracker when I sign in to Windows**: tick it to have it always running while you're signed in.
-   - **Put Start and Stop Train Tracker on the Desktop**: untick it to keep them in the Start menu only.
+   - **Put Open Train Tracker, and Start and Stop Train Tracker Service, on the Desktop**: untick it to keep them
+     in the Start menu only.
 
    Train Tracker runs on Python 3.11 or newer. If this PC doesn't have it, the window says so and the installer
    downloads Python 3.14 from [python.org](https://www.python.org/) (about 30 MB), checks it's the genuine
@@ -146,22 +147,22 @@ connections, click **Allow**. Then see section 5.
 
 ### Start and stop
 
-Train Tracker runs quietly in the background, with no window. Two shortcuts control it, in the **Start menu ›
-Train Tracker** and, if you chose that, on your **Desktop** (a third, **Uninstall Train Tracker**, in the Start
-menu, called **Remove Train Tracker** there, removes it: see section 9):
+Train Tracker runs quietly in the background as a service, with no window. Three shortcuts are in the **Start
+menu › Train Tracker** and, if you chose that, on your **Desktop** (it's removed from Settings › Apps: see
+section 9):
 
-- **Start Train Tracker** (green ▶): starts it if it isn't running, and opens the map.
-- **Stop Train Tracker** (red ■): shuts it down.
+- **Open Train Tracker** (the train): opens the map, starting the service first if it isn't running.
+- **Start Train Tracker Service** (green ▶): starts it in the background, without opening the map.
+- **Stop Train Tracker Service** (red ■): shuts it down. The map stops updating until you start it again.
 
 ### Is it running?
 
-While Train Tracker runs, its **green train icon** sits by the clock at the bottom right. Windows may tuck new
-icons away under the **^** arrow: drag it down onto the taskbar to keep it in sight. Click it to open the map,
-or right-click to see that it's running, since when, how many trains are on the map and the address for
-phones, and to change the **API keys…** or **Stop Train Tracker**. The icon turns grey if Train Tracker stops
-answering, and goes away when it stops. Task Manager lists it as **Train Tracker**.
-
-Start Train Tracker says so if it's already running, and Stop Train Tracker if it wasn't.
+Look at the **train icon** by the clock at the bottom right: **green** while Train Tracker runs, **red** when it's
+stopped. It stays there once Train Tracker has started, until you sign out, so you can start it again from it.
+Windows may tuck new icons away under the **^** arrow: drag it down onto the taskbar to keep it in sight. Click it
+to open the map (starting Train Tracker first if it's stopped), or right-click it for **Open the map**, **Start
+Train Tracker Service** and **Stop Train Tracker Service**. A notice says when it has started or stopped. Task
+Manager lists it as **Train Tracker**.
 
 If you chose phones, the installer makes sure Windows Firewall lets them in, on home (Private) networks only.
 If it needs to change the firewall, Windows asks *"Do you want to allow this app to make changes to your
@@ -282,8 +283,8 @@ then installs it new): see section 2.
   whether to delete your data too (a tick box), then shows its progress until it's done. The first time, macOS
   asks whether Uninstall Train Tracker may access files in your Desktop folder: click **Allow**, so it can
   remove its icons from the Desktop. (If you don't, it tells you to drag them to the Trash.)
-- **Windows:** click **Remove Train Tracker** in **Start menu › Train Tracker**, or double-click **Uninstall
-  Train Tracker** in the folder you installed it in; or open **Settings › Apps**, find **US Train Tracker** and click **Uninstall**. A window asks
+- **Windows:** open **Settings › Apps › Installed apps**, find **US Train Tracker** and click **Uninstall**, as for
+  any program (**Uninstall Train Tracker** is also in the folder you installed it in). A window asks
   whether to delete your data too, then shows its progress until it's done.
 
 It removes the service, the icons and the program. Python stays, for anything else that uses it. Your data
@@ -299,7 +300,7 @@ or `C:\Users\<your name>\.train-tracker` (Windows).
 | "Train Tracker didn't start" | Its messages say why: on a Mac in `~/Library/Logs/Train Tracker.log`, on Windows in `train-tracker.log` in the folder it's installed in (normally `%LOCALAPPDATA%\Programs\Project Moon Pi\Train Tracker`). A common cause is another program using port 7500 |
 | Stop says it's still running | Another program is serving on port 7500 (perhaps a copy started by hand). Close it, or restart the computer |
 | The browser didn't open | Open **http://127.0.0.1:7500** yourself |
-| No train icon in the menu bar or by the clock | Train Tracker isn't running: use Start Train Tracker. On Windows, also look under the **^** by the clock. If it's running (the map opens) but there's still no icon, run the installer again |
+| No train icon in the menu bar or by the clock | Train Tracker isn't running: use Start Train Tracker (on Windows, Open Train Tracker). On Windows, also look under the **^** by the clock. If it's running (the map opens) but there's still no icon, run the installer again |
 | The phone can't open the address | Check the phone is on the same Wi-Fi (not mobile data or a guest network), and that you installed with **Phones too**. On Windows, run the installer again and click **Yes** if Windows asks for permission, and make sure your network is set to Private. On a Mac, if macOS asked whether Train Tracker (or Python) may accept incoming connections, choose **Allow**. Some routers keep devices apart ("client isolation" or "AP isolation"): turn that off for your home network |
 | `raspberrypi.local` doesn't work | Use the Pi's numbered address instead: run `hostname -I` on the Pi |
 | Map shows but no track | The first start is still downloading the rail map: wait a minute and reload |

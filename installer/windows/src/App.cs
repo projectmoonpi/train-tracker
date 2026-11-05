@@ -38,15 +38,16 @@ static partial class App
 
     // its shortcuts in the Start menu (and on the Desktop if wanted): name, <App>.exe's arguments, icon, description
     public static readonly string[][] Links = {
-        new[] { "Start Train Tracker", "", "start", "Start US Train Tracker and open the map" },
-        new[] { "Stop Train Tracker", "--stop", "stop", "Stop US Train Tracker" },
+        new[] { "Open Train Tracker", "", "app", "Open the map (starting Train Tracker first if it isn't running)" },
+        new[] { "Start Train Tracker Service", "--no-browser", "start", "Start US Train Tracker's service in the background (the map opens with Open Train Tracker)" },
+        new[] { "Stop Train Tracker Service", "--stop", "stop", "Stop US Train Tracker's service" },
     };
 
     // the Python that runs it: its own Python set-up's (venv), without a console window
     public static string PythonW(string dir) { return Path.Combine(dir, @"venv\Scripts\pythonw.exe"); }
 
     // the icons in the install folder (copied from installer\icons)
-    public static string Icon(string kind) { return kind + ".ico"; }      // "app", "start", "stop", "uninstall"
+    public static string Icon(string kind) { return kind + ".ico"; }      // "app", "start", "stop", "uninstall", "tray-on", "tray-off"
 
     // Python: the oldest it runs on, and the one installed when there's none (python.org, for this user only)
     public static readonly Version PythonMin = new Version(3, 11);
@@ -68,7 +69,7 @@ static partial class App
     public static string RunArgs(string dir)
     {
         bool phones = InstalledFlag(dir, "phones", true);
-        return "-m train_tracker --port " + InstalledPort(dir) + " --log-file " + Proc.Quote(AppLog(dir)) + " --tray" +
+        return "-m train_tracker --port " + InstalledPort(dir) + " --log-file " + Proc.Quote(AppLog(dir)) +     // (its icon by the clock is Train Tracker.exe --tray)
                (phones ? " --host 0.0.0.0" : "");
     }
 

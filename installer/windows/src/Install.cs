@@ -2,8 +2,8 @@
 // from scratch; your settings are kept). It runs from the downloaded folder, beside the program's files.
 //
 // Installs the program in %LOCALAPPDATA%\Programs\Project Moon Pi\<App> (or a folder you choose), with <App>.exe and
-// Uninstall <App>.exe in it; puts Start, Stop and Remove <App> in the Start menu, Start and Stop on the Desktop if you
-// like, and lists it in Settings > Apps. Needs Python (App.PythonMin); if it isn't there, it installs Python from
+// Uninstall <App>.exe in it; puts Open, Start and Stop <App> in the Start menu (and on the Desktop if you like), and
+// lists it in Settings > Apps, which is where it's removed. Needs Python (App.PythonMin); if it isn't there, it installs Python from
 // python.org for this user only (checked: the expected download, signed by the Python Software Foundation). What it
 // does is logged in %TEMP%\<App> install.log. Designed and Created by Project Moon Pi.
 //
@@ -293,7 +293,7 @@ static class Install
             choices = Ui.Choices(text, new[] {
                 new Box(App.PhonesText, Env("SS_PHONES") != null ? Env("SS_PHONES") != "no" : wasPhones),
                 new Box("Start Train Tracker when I sign in to Windows", Env("SS_AUTOSTART") != null ? Env("SS_AUTOSTART") == "yes" : wasAuto),
-                new Box("Put Start and Stop Train Tracker on the Desktop", Env("SS_DESKTOP") != null ? Env("SS_DESKTOP") != "no" : wasDesk) },
+                new Box("Put Open Train Tracker, and Start and Stop Train Tracker Service, on the Desktop", Env("SS_DESKTOP") != null ? Env("SS_DESKTOP") != "no" : wasDesk) },
                 okText, have != null, suggest, CheckFolder);
             if (!Ui.WentBack) break;
         }
@@ -328,7 +328,7 @@ static class Install
             if (!App.IsInstalledIn(d)) continue;
             if (Web.Up(App.InstalledPort(d))) WasRunning = d;     // (if this install goes wrong after this, it's started again)
             App.Log("stopping the copy in " + d);
-            Runner.Stop(d, true);
+            Runner.Stop(d, true, true);
         }
 
         var notes = new List<string>();
@@ -429,17 +429,14 @@ static class Install
         var ver = new StringBuilder();
         Proc.Quick(venvPy, new[] { "-c", "import train_tracker; print(train_tracker.__version__)" }, 30, AppDir, ver);
         string version = LastLine(ver.ToString()).Trim();
-        // pystray and Pillow put its icon by the clock; without them it runs without the icon
-        Ui.Progress("Installing the icon by the clock...", 72);
-        try { Run(venvPy, new[] { "-m", "pip", "install", "pystray", "pillow" }.Concat(pipArgs), "Installing pystray and Pillow", 80, 30); }
-        catch (Exception e) { App.Log(e.Message + " - no icon by the clock"); }
+        // (its icon by the clock is Train Tracker.exe --tray: no pystray or Pillow on Windows)
 
         // the Windows programs and their icons
         Ui.Progress("Adding the shortcuts...", 81);
         string win = Path.Combine(Src, @"installer\windows");
         foreach (var exe in new[] { App.Name + ".exe", "Uninstall " + App.Name + ".exe" })
             Put(Path.Combine(win, exe), Path.Combine(AppDir, exe));
-        foreach (var kind in new[] { "start", "stop", "uninstall", "app" })
+        foreach (var kind in new[] { "start", "stop", "uninstall", "app", "tray-on", "tray-off" })
             Put(Path.Combine(Src, @"installer\icons\" + App.Icon(kind)), Path.Combine(AppDir, App.Icon(kind)));
         Put(Path.Combine(Src, @"src\train_tracker\web\img\moon-pi-logo-128.png"), Path.Combine(AppDir, "logo.png"));
         // what the PowerShell installers (before 0.6) left: their scripts, and Python renamed for Task Manager
@@ -503,9 +500,9 @@ static class Install
 
         string did = mode == "update" ? "is installed (updated from " + have + ")" : mode == "repair" ? "is repaired"
                    : mode == "fresh" ? "is reinstalled from scratch" : "is installed";
-        string done = App.Display + " " + version + " " + did + (up ? " and running." : ", but it didn't start yet: use Start Train Tracker in the Start menu.") +
-            "\n\nIts train icon is by the clock (click ^ if Windows has tucked it away there). Start and Stop Train Tracker are in the Start menu" +
-            (onDesktop ? ", and on your Desktop" : "") + ". To remove it, use Remove Train Tracker in the Start menu, Uninstall Train Tracker in " + AppDir + ", or Settings > Apps." +
+        string done = App.Display + " " + version + " " + did + (up ? " and running." : ", but it didn't start yet: use Start Train Tracker Service in the Start menu.") +
+            "\n\nIts train icon is by the clock (click ^ if Windows has tucked it away there): green while it runs, red when it's stopped. Click it for the map; right-click it to start or stop Train Tracker's service. Open Train Tracker, and Start and Stop Train Tracker Service, are in the Start menu" +
+            (onDesktop ? ", and on your Desktop" : "") + ". To remove it: Settings > Apps > Installed apps, " + App.Display + ", Uninstall." +
             (networkNote != null ? "\n\n" + networkNote : "") + string.Concat(notes.Select(n => "\n\n" + n));
         var open = Ui.Done(done, "Finish", new[] { new Box("Open the map now", up && Env("SS_OPEN") != "no") });
         if (up && open.Length > 0 && open[0] && !Ui.Unattended) Proc.Open("http://127.0.0.1:" + port + App.OpenPath);

@@ -67,7 +67,7 @@ static class Uninstall
         }
 
         Ui.Progress("Stopping Train Tracker...", 10);
-        Runner.Stop(dir, true);
+        Runner.Stop(dir, true, true);
         int port = App.InstalledPort(dir);
 
         // close the port for phones (Windows asks for permission only if there's a rule to remove)

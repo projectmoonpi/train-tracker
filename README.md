@@ -83,14 +83,16 @@ Tracker**; on Windows, double-click the downloaded installer. The installer:
 * asks whether phones on your Wi-Fi may open the map, whether it should start when you log in, and whether to put
   Start and Stop on your Desktop,
 * sets it up as a **background service** (a LaunchAgent on macOS, a hidden process on Windows), and
-* puts three icons in **Applications › Train Tracker** (Mac) or the **Start menu › Train Tracker** (Windows):
-  **Start Train Tracker** starts the service and opens the map; **Stop Train Tracker** shuts it down;
-  **Uninstall Train Tracker** removes it cleanly (in the Windows Start menu it's called **Remove Train Tracker**,
-  as Windows hides Start menu items named Uninstall). Start and Stop go on the Desktop too if you choose. On
-  Windows **Uninstall Train Tracker** is also in the install folder, and it's listed in
-  **Settings › Apps**, whose Uninstall button does the same.
-* shows a **train icon in the menu bar** (Mac) or **by the clock** (Windows) while it runs: its menu says since
-  when and how many trains are on the map, and opens the map or the API keys page, or stops Train Tracker.
+* puts three icons in **Applications › Train Tracker** (Mac): **Start Train Tracker** starts the service and
+  opens the map; **Stop Train Tracker** shuts it down; **Uninstall Train Tracker** removes it cleanly. On
+  Windows the **Start menu › Train Tracker** has **Open Train Tracker** (opens the map, starting the service first
+  if it isn't running), **Start Train Tracker Service** and **Stop Train Tracker Service** (they only start and
+  stop it in the background); it's removed from **Settings › Apps**, like any program. They go on the Desktop too
+  if you choose.
+* shows a **train icon in the menu bar** (Mac) while it runs: its menu says since when and how many trains are on
+  the map, and opens the map or the API keys page, or stops Train Tracker. On Windows the train icon is **by the
+  clock** and stays there: green while it runs, red when it's stopped; click it for the map, right-click it to
+  start or stop the service.
   Activity Monitor and Task Manager list it as **Train Tracker**.
 
 **Updates:** the map's *About and credits* says when there's a newer Train Tracker (**Check now** asks GitHub
@@ -270,7 +272,7 @@ holds what's Train Tracker's own; the other files are shared with SkyScope and A
 * Noto Sans (via the OpenFreeMap glyphs), SIL Open Font License 1.1
 * [Python](https://www.python.org) (PSF License), which the Mac and Windows installers download from python.org when it's missing
 * [aiohttp](https://github.com/aio-libs/aiohttp), Apache-2.0
-* Menu bar / taskbar icon (installed copies): [pystray](https://github.com/moses-palmer/pystray) (LGPL-3.0),
+* Mac menu bar icon (installed copies): [pystray](https://github.com/moses-palmer/pystray) (LGPL-3.0),
   [Pillow](https://python-pillow.org) (MIT-CMU) and, on a Mac, [PyObjC](https://github.com/ronaldoussoren/pyobjc) (MIT)
 * Windows installer: C# on Microsoft's .NET Framework 4.8 (Windows Forms), built with [Mono](https://www.mono-project.com)'s
   C# compiler (Roslyn, MIT); shared with Project Moon Pi's SkyScope

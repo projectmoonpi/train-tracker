@@ -4,6 +4,15 @@ All notable changes to this project are listed here. Versions follow [Semantic V
 
 ## [Unreleased]
 
+- **Windows: the train icon by the clock stays.** It's green while Train Tracker runs and turns red when it's
+  stopped, instead of going away, so you can start it again from there. Click it for the map; right-click it for
+  **Open the map**, **Start Train Tracker Service** and **Stop Train Tracker Service**. (It's now part of Train
+  Tracker.exe, so pystray and Pillow are no longer installed on Windows.)
+- **Windows: Open, Start and Stop.** The Start menu (and the Desktop, if you choose) has **Open Train Tracker**
+  (opens the map, starting the service first if needed), **Start Train Tracker Service** and **Stop Train Tracker
+  Service** (they only start and stop it in the background).
+- **Windows: no Remove shortcut.** Train Tracker is uninstalled from Settings › Apps, like other programs.
+
 ## [1.0.3] - 2026-11-05
 
 - **One file to download, as with Aviator Trail.** On Windows the download is the installer itself
