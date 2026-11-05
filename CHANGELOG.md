@@ -4,6 +4,8 @@ All notable changes to this project are listed here. Versions follow [Semantic V
 
 ## [Unreleased]
 
+## [1.0.6] - 2026-11-05
+
 - Windows installer: while it opens the firewall for phones, it says **Finishing setting up Train Tracker...** (the
   longer line was cut off).
 
