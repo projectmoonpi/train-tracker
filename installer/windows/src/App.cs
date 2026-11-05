@@ -45,6 +45,8 @@ static partial class App
 
     // what rides the installer's progress bar (MoonBar.cs): a train, as on the Mac
     public const string BarRider = "train";
+    // the icon by the clock (Tray.cs): green while it runs, red when it's stopped
+    public static readonly bool TrayIcon = true;
 
     // the Python that runs it: its own Python set-up's (venv), without a console window
     public static string PythonW(string dir) { return Path.Combine(dir, @"venv\Scripts\pythonw.exe"); }
