@@ -4,6 +4,8 @@ All notable changes to this project are listed here. Versions follow [Semantic V
 
 ## [Unreleased]
 
+## [1.0.4] - 2026-11-05
+
 - **Windows: the train icon by the clock stays.** It's green while Train Tracker runs and turns red when it's
   stopped, instead of going away, so you can start it again from there. Click it for the map; right-click it for
   **Open the map**, **Start Train Tracker Service** and **Stop Train Tracker Service**. (It's now part of Train
