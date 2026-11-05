@@ -1,15 +1,14 @@
 #!/usr/bin/env python3
-"""Build the two downloads attached to each GitHub release:
+"""Build the downloads attached to each GitHub release, one file for each computer (as Aviator Trail's):
 
-  dist/US-Train-Tracker-for-Mac-v<version>.zip       Install Train Tracker.app (the program and the Mac installer
-                                                     inside it: build_mac_app(); needs a Mac, for macOS's osacompile
-                                                     and codesign)
-  dist/US-Train-Tracker-for-Windows-v<version>.zip   Install Train Tracker.exe + the Windows installer pieces
-  dist/US-Train-Tracker-Install-Guide-v<version>.pdf the printable guide
+  dist/US-Train-Tracker-for-Mac-v<version>.dmg            a disk image: Install Train Tracker.app (the program and the
+                                                          Mac installer inside it: build_mac_app(); needs a Mac, for
+                                                          osacompile, codesign and hdiutil), the guide, a READ ME
+  dist/Install-US-Train-Tracker-for-Windows-v<version>.exe  the installer, carrying the program (Payload.cs)
+  dist/US-Train-Tracker-Install-Guide-v<version>.pdf      the printable guide
 
-The version is in each file's name (and the zip's folder), so a download says which Train Tracker it is.
-
-Each holds the app (installed from the folder by the installer), the printable guide and a READ ME FIRST note.
+and, for Train Tracker 1.0.2's Update button (it looks for zips), US-Train-Tracker-for-Mac-v<version>.zip and
+-for-Windows-v<version>.zip. The version is in each file's name, so a download says which Train Tracker it is.
 The release workflow runs this; it also runs locally:  python3 tools/make_downloads.py
 """
 import re
@@ -48,26 +47,7 @@ Designed and Created by Project Moon Pi
 While it runs, its train icon is in the menu bar: click it for the map, the API keys or Stop.
 Start, Stop and Uninstall Train Tracker are in Applications > Train Tracker (Start and Stop on your Desktop
 too, if you chose). Uninstall asks whether to keep your maps and API keys for the next install.
-You can delete this folder once it's installed. The full guide is "US Train Tracker - Installation Guide.pdf".
-""",
-    "Windows": """US Train Tracker {v} for Windows
-Designed and Created by Project Moon Pi
-
-1. Extract this zip (right-click it, Extract All), then double-click "Install Train Tracker" (the train icon).
-   If Windows says it protected your PC: More info > Run anyway.
-2. Choose where to install it (or keep the suggested folder), whether phones on your Wi-Fi may open the map,
-   whether it starts when you sign in and whether Start and Stop go on your Desktop, then click Install. If this PC doesn't have Python 3.11 or newer, it installs Python from python.org for you too
-   (no admin permission needed).
-   If you chose phones, a note comes up before Windows asks to allow Install Train Tracker.exe to make changes:
-   click Yes (that opens the firewall for them).
-3. Click Finish. Leave "Open the map now" ticked to see the map.
-
-While it runs, its green train icon is by the clock (click ^ if it's hidden): click it for the map,
-right-click for the API keys or Stop.
-Afterwards use Start Train Tracker and Stop Train Tracker in the Start menu (and on your Desktop, if you chose that).
-To remove it, double-click "Uninstall Train Tracker" in this folder or in the folder you installed it in, click
-"Remove Train Tracker" in the Start menu, or use Settings > Apps.
-You can delete this folder once it's installed. The full guide is "US Train Tracker - Installation Guide.pdf".
+Once it's installed you can eject this disk image and delete the download. The full guide is "US Train Tracker - Installation Guide.pdf".
 """,
 }
 
@@ -135,10 +115,10 @@ def build_mac_app(dest, files):
     return app
 
 
-def build(platform):
-    top = f"US Train Tracker {VERSION} for {platform}"
-    out = DIST / f"US-Train-Tracker-for-{platform}-v{VERSION}.zip"
-    windows = platform == "Windows"
+MARK = b"MOONPI-PAYLOAD-1"      # (installer/windows/src/Payload.cs reads it)
+
+
+def program_files(windows):
     files = [ROOT / f for f in COMMON]
     files += [p for p in sorted((ROOT / "src").rglob("*"))
               if p.is_file() and "__pycache__" not in p.parts and ".egg-info" not in str(p)]
@@ -150,38 +130,64 @@ def build(platform):
     else:
         files += sorted(f for f in (ROOT / "installer/mac").iterdir() if f.suffix in (".sh", ".py"))
         files += sorted((ROOT / "installer/icons").glob("*.icns")) + sorted((ROOT / "installer/icons").glob("*.png"))
+    return files
 
-    def add(z, name, data, mode=0o644):
-        info = zipfile.ZipInfo(f"{top}/{name}", date_time=time.localtime()[:6])
-        info.compress_type = zipfile.ZIP_DEFLATED
-        info.external_attr = (mode | stat.S_IFREG) << 16
-        z.writestr(info, data)
 
-    DIST.mkdir(exist_ok=True)
-    count = 0
+def zip_entry(z, name, data, mode=0o644):
+    info = zipfile.ZipInfo(name, date_time=time.localtime()[:6])
+    info.compress_type = zipfile.ZIP_DEFLATED
+    info.external_attr = (mode | stat.S_IFREG) << 16
+    z.writestr(info, data)
+
+
+def build_windows():
+    """The installer with the program's files (a zip) added to its end, as NSIS and Inno Setup installers carry theirs
+    (Payload.cs unpacks them). One file: download it, double-click it."""
+    out = DIST / f"Install-US-Train-Tracker-for-Windows-v{VERSION}.exe"
+    with tempfile.SpooledTemporaryFile() as buf:
+        with zipfile.ZipFile(buf, "w") as z:
+            for f in program_files(True):
+                zip_entry(z, f.relative_to(ROOT).as_posix(), f.read_bytes())
+        buf.seek(0)
+        payload = buf.read()
+    exe = (ROOT / "installer/windows/Install Train Tracker.exe").read_bytes()
+    out.write_bytes(exe + payload + len(payload).to_bytes(8, "little") + MARK)
+    print(f"wrote {out.relative_to(ROOT)} ({out.stat().st_size // 1024} KB)")
+    return out
+
+
+def build_mac():
+    """A disk image holding Install Train Tracker.app, the guide and a READ ME. One file: download it, double-click
+    it, double-click Install Train Tracker."""
+    out = DIST / f"US-Train-Tracker-for-Mac-v{VERSION}.dmg"
+    with tempfile.TemporaryDirectory() as tmp:
+        stage = Path(tmp) / f"US Train Tracker {VERSION}"
+        stage.mkdir()
+        build_mac_app(stage, program_files(False))
+        shutil.copy2(GUIDE, stage / "US Train Tracker - Installation Guide.pdf")
+        (stage / "READ ME FIRST.txt").write_text(READ_ME["Mac"].format(v=VERSION))
+        subprocess.run(["hdiutil", "create", "-quiet", "-volname", f"Install Train Tracker {VERSION}", "-srcfolder",
+                        str(stage), "-fs", "HFS+", "-format", "UDZO", "-ov", str(out)], check=True)
+    print(f"wrote {out.relative_to(ROOT)} ({out.stat().st_size // 1024} KB)")
+    return out
+
+
+def build_old_zip(platform):
+    """For Train Tracker 1.0.2's Update button, which looks for a zip holding a "US Train Tracker <version> ..."
+    folder with the installer in it (the one-file installer, on Windows)."""
+    top = f"US Train Tracker {VERSION} for {platform}"
+    out = DIST / f"US-Train-Tracker-for-{platform}-v{VERSION}.zip"
     with zipfile.ZipFile(out, "w") as z:
-        if windows:
-            for f in files:
-                data = f.read_bytes()
-                if f.suffix in (".bat", ".ps1"):              # Windows line endings, whatever the checkout has
-                    data = data.replace(b"\r\n", b"\n").replace(b"\n", b"\r\n")
-                add(z, f.relative_to(ROOT).as_posix(), data)
-                count += 1
-            # the installer and uninstaller (train and trash-can icons), at the top of the folder
-            for exe in ("Install Train Tracker.exe", "Uninstall Train Tracker.exe"):
-                add(z, exe, (ROOT / "installer/windows" / exe).read_bytes())
-                count += 1
+        if platform == "Windows":
+            zip_entry(z, f"{top}/Install Train Tracker.exe",
+                      (DIST / f"Install-US-Train-Tracker-for-Windows-v{VERSION}.exe").read_bytes())
         else:
             with tempfile.TemporaryDirectory() as tmp:
-                app = build_mac_app(Path(tmp), files)
+                app = build_mac_app(Path(tmp), program_files(False))
                 for f in sorted(app.rglob("*")):
                     if f.is_file():
-                        add(z, f.relative_to(tmp).as_posix(), f.read_bytes(), stat.S_IMODE(f.stat().st_mode))
-                        count += 1
-        add(z, "US Train Tracker - Installation Guide.pdf", GUIDE.read_bytes())
-        note = READ_ME[platform].format(v=VERSION)
-        add(z, "READ ME FIRST.txt", note.replace("\n", "\r\n") if windows else note)
-    print(f"wrote {out.relative_to(ROOT)} ({out.stat().st_size // 1024} KB, {count + 2} files)")
+                        zip_entry(z, f"{top}/{f.relative_to(tmp).as_posix()}", f.read_bytes(), stat.S_IMODE(f.stat().st_mode))
+    print(f"wrote {out.relative_to(ROOT)} ({out.stat().st_size // 1024} KB)")
     return out
 
 
@@ -195,7 +201,9 @@ def guide():
 
 
 if __name__ == "__main__":
+    DIST.mkdir(exist_ok=True)
     for p in (sys.argv[1:] or ["Mac", "Windows"]):
-        build(p)
+        (build_mac if p == "Mac" else build_windows)()
+        build_old_zip(p)
     if not sys.argv[1:]:
         guide()

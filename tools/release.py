@@ -22,8 +22,9 @@ README = ROOT / "README.md"
 INSTALL = ROOT / "docs" / "INSTALL.md"
 GUIDE_PDF = ROOT / "docs" / "US-Train-Tracker-Install-Guide.pdf"
 FOLDER = re.compile(r"\*\*US Train Tracker(?: [\d.]+)? for (Mac|Windows)\*\*,")    # the zip's folder, in the guide
-# a download link or name, versioned or not (the plain names are from before 1.0.1)
-DOWNLOAD = re.compile(r"(?:releases/(?:latest/download|download/v[\d.]+)/)?US-Train-Tracker-for-(Mac|Windows)(?:-v[\d.]+)?\.zip")
+# a download link or name, versioned or not (the plain names are from before 1.0.1, the zips from before 1.0.3)
+DOWNLOAD = re.compile(r"(?:releases/(?:latest/download|download/v[\d.]+)/)?(?:Install-)?US-Train-Tracker-for-(Mac|Windows)"
+                      r"(?:-v[\d.]+)?\.(?:zip|dmg|exe)")
 CO_AUTHOR = "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"   # the project is built with Claude Code
 
 
@@ -34,7 +35,8 @@ def run(*cmd):
 def point_downloads(version):
     """README.md and docs/INSTALL.md: download links, file names and the zip's folder name for this version."""
     def new(m):
-        name = f"US-Train-Tracker-for-{m.group(1)}-v{version}.zip"
+        name = (f"US-Train-Tracker-for-Mac-v{version}.dmg" if m.group(1) == "Mac"
+                else f"Install-US-Train-Tracker-for-Windows-v{version}.exe")      # (one file each, from 1.0.3)
         return f"releases/download/v{version}/{name}" if m.group(0).startswith("releases/") else name
     for f in (README, INSTALL):
         text = DOWNLOAD.sub(new, f.read_text())

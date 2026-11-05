@@ -4,6 +4,13 @@ All notable changes to this project are listed here. Versions follow [Semantic V
 
 ## [Unreleased]
 
+- **One file to download, as with Aviator Trail.** On Windows the download is the installer itself
+  (**Install-US-Train-Tracker-for-Windows-v<version>.exe**), carrying Train Tracker inside it: no zip to extract,
+  just double-click it. On a Mac it's a disk image (**US-Train-Tracker-for-Mac-v<version>.dmg**) with **Install
+  Train Tracker**, the guide and a READ ME. Uninstalling is unchanged. **Update to <version>** uses the new files;
+  zips are still attached for 1.0.2's Update button.
+- The Windows installer's last page never cuts its text off (the window grows if it needs to), and shows an &.
+
 ## [1.0.2] - 2026-11-04
 
 - **Update from inside Train Tracker.** The map's *About and credits* now has **Updates**: it says when there's a

@@ -10,8 +10,8 @@ Live Amtrak and commuter-rail positions on a map of US passenger track, in your 
 
 | | |
 |---|---|
-| 🍎 **[Download for Mac](https://github.com/projectmoonpi/train-tracker/releases/download/v1.0.2/US-Train-Tracker-for-Mac-v1.0.2.zip)** | Open the zip, double-click **Install Train Tracker** |
-| 🪟 **[Download for Windows](https://github.com/projectmoonpi/train-tracker/releases/download/v1.0.2/US-Train-Tracker-for-Windows-v1.0.2.zip)** | Extract the zip, double-click **Install Train Tracker** |
+| 🍎 **[Download for Mac](https://github.com/projectmoonpi/train-tracker/releases/download/v1.0.2/US-Train-Tracker-for-Mac-v1.0.2.dmg)** | Open it, double-click **Install Train Tracker** |
+| 🪟 **[Download for Windows](https://github.com/projectmoonpi/train-tracker/releases/download/v1.0.2/Install-US-Train-Tracker-for-Windows-v1.0.2.exe)** | Double-click it |
 
 Both need Python 3.11 or newer: if the computer doesn't have it, the installer offers to install it from
 [python.org](https://www.python.org/downloads/) for you. The installer sets Train Tracker up as a background service with **Start** and **Stop** icons. Step by step, including Raspberry Pi, iPhone and
@@ -74,8 +74,9 @@ shared beyond your own network unless you set up remote access (the guide covers
 
 ## Install and run
 
-**The easy way (Mac or Windows):** download **[for Mac](https://github.com/projectmoonpi/train-tracker/releases/download/v1.0.2/US-Train-Tracker-for-Mac-v1.0.2.zip)** or **[for Windows](https://github.com/projectmoonpi/train-tracker/releases/download/v1.0.2/US-Train-Tracker-for-Windows-v1.0.2.zip)** (also on the
-[latest release](../../releases/latest)), unzip it and double-click **Install Train Tracker**. The installer:
+**The easy way (Mac or Windows):** download **[for Mac](https://github.com/projectmoonpi/train-tracker/releases/download/v1.0.2/US-Train-Tracker-for-Mac-v1.0.2.dmg)** or **[for Windows](https://github.com/projectmoonpi/train-tracker/releases/download/v1.0.2/Install-US-Train-Tracker-for-Windows-v1.0.2.exe)** (also on the
+[latest release](../../releases/latest)): one file. On a Mac, open the disk image and double-click **Install Train
+Tracker**; on Windows, double-click the downloaded installer. The installer:
 
 * installs it for you (Mac: `~/Library/Application Support/Train Tracker`; Windows: `%LOCALAPPDATA%\Programs\Project Moon Pi\Train Tracker`,
   or a folder you choose),
@@ -86,7 +87,7 @@ shared beyond your own network unless you set up remote access (the guide covers
   **Start Train Tracker** starts the service and opens the map; **Stop Train Tracker** shuts it down;
   **Uninstall Train Tracker** removes it cleanly (in the Windows Start menu it's called **Remove Train Tracker**,
   as Windows hides Start menu items named Uninstall). Start and Stop go on the Desktop too if you choose. On
-  Windows **Uninstall Train Tracker** is also in the install folder and the downloaded folder, and it's listed in
+  Windows **Uninstall Train Tracker** is also in the install folder, and it's listed in
   **Settings › Apps**, whose Uninstall button does the same.
 * shows a **train icon in the menu bar** (Mac) or **by the clock** (Windows) while it runs: its menu says since
   when and how many trains are on the map, and opens the map or the API keys page, or stops Train Tracker.

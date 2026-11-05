@@ -7,7 +7,7 @@ $csc = Join-Path $env:WINDIR 'Microsoft.NET\Framework64\v4.0.30319\csc.exe'
 if (-not (Test-Path $csc)) { $csc = Join-Path $env:WINDIR 'Microsoft.NET\Framework\v4.0.30319\csc.exe' }
 foreach ($b in @(@('Install Train Tracker.exe', 'app.ico'), @('Uninstall Train Tracker.exe', 'uninstall.ico'), @('Train Tracker.exe', 'app.ico'))) {
     & $csc /nologo /target:winexe /optimize+ /reference:System.Windows.Forms.dll /reference:System.Drawing.dll `
-        /reference:System.Core.dll /reference:System.Web.Extensions.dll /reference:Microsoft.CSharp.dll `
+        /reference:System.Core.dll /reference:System.Web.Extensions.dll /reference:Microsoft.CSharp.dll /reference:System.IO.Compression.dll `
         "/win32icon:$(Join-Path $here "..\icons\$($b[1])")" "/out:$(Join-Path $here $b[0])" (Join-Path $here 'src\*.cs')
     if ($LASTEXITCODE) { exit $LASTEXITCODE }
 }

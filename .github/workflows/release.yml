@@ -42,9 +42,10 @@ jobs:
         run: |
           {
             printf '## Download\n\n'
-            printf -- '- **Mac:** [US-Train-Tracker-for-Mac-%s.zip](https://github.com/%s/releases/download/%s/US-Train-Tracker-for-Mac-%s.zip): open it and double-click **Install Train Tracker**\n' "$GITHUB_REF_NAME" "$GITHUB_REPOSITORY" "$GITHUB_REF_NAME" "$GITHUB_REF_NAME"
-            printf -- '- **Windows:** [US-Train-Tracker-for-Windows-%s.zip](https://github.com/%s/releases/download/%s/US-Train-Tracker-for-Windows-%s.zip): extract it and double-click **Install Train Tracker**\n' "$GITHUB_REF_NAME" "$GITHUB_REPOSITORY" "$GITHUB_REF_NAME" "$GITHUB_REF_NAME"
+            printf -- '- **Mac:** [US-Train-Tracker-for-Mac-%s.dmg](https://github.com/%s/releases/download/%s/US-Train-Tracker-for-Mac-%s.dmg): open it and double-click **Install Train Tracker**\n' "$GITHUB_REF_NAME" "$GITHUB_REPOSITORY" "$GITHUB_REF_NAME" "$GITHUB_REF_NAME"
+            printf -- '- **Windows:** [Install-US-Train-Tracker-for-Windows-%s.exe](https://github.com/%s/releases/download/%s/Install-US-Train-Tracker-for-Windows-%s.exe): double-click it\n' "$GITHUB_REF_NAME" "$GITHUB_REPOSITORY" "$GITHUB_REF_NAME" "$GITHUB_REF_NAME"
             printf -- '- **Raspberry Pi / Linux:** the `.whl` file below (see the guide)\n\n'
+            printf 'The `.zip` files are only for Train Tracker 1.0.2'"'"'s Update button.\n\n'
             printf 'Both need Python 3.11 or newer; the installers offer to install it from python.org if it is missing. Step-by-step: the [Installation Guide](https://github.com/%s/blob/%s/docs/INSTALL.md), also attached as a PDF.\n\n## Changes\n\n' "$GITHUB_REPOSITORY" "$GITHUB_REF_NAME"
             cat notes.md
           } > full-notes.md && mv full-notes.md notes.md

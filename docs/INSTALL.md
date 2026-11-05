@@ -51,14 +51,15 @@ The server is light: it sits at almost no CPU between updates. It runs in the ba
 
 ### Step 1: Download US Train Tracker
 
-1. Download **[US Train Tracker for Mac](https://github.com/projectmoonpi/train-tracker/releases/download/v1.0.2/US-Train-Tracker-for-Mac-v1.0.2.zip)** (it's also on the
-   [Releases page](https://github.com/projectmoonpi/train-tracker/releases/latest), as **US-Train-Tracker-for-Mac-v1.0.2.zip**).
-2. Open the downloaded zip (Safari usually unzips it for you). You get a folder named
-   **US Train Tracker 1.0.2 for Mac**, with a READ ME FIRST note and this guide inside.
+1. Download **[US Train Tracker for Mac](https://github.com/projectmoonpi/train-tracker/releases/download/v1.0.2/US-Train-Tracker-for-Mac-v1.0.2.dmg)** (it's also on the
+   [Releases page](https://github.com/projectmoonpi/train-tracker/releases/latest), as **US-Train-Tracker-for-Mac-v1.0.2.dmg**):
+   one file, a disk image.
+2. Double-click the downloaded disk image. A window opens with **Install Train Tracker**, a READ ME FIRST note
+   and this guide.
 
 ### Step 2: Run the installer
 
-1. In that folder, double-click **Install Train Tracker** (the train icon).
+1. In that window, double-click **Install Train Tracker** (the train icon).
 2. macOS may say it can't verify the developer, because the installer isn't from the App Store. To allow it:
    open **System Settings → Privacy & Security**, scroll down to the message about "Install Train Tracker",
    and click **Open Anyway**. (On macOS 14 or older you can instead Control-click it, choose **Open**, then
@@ -86,8 +87,8 @@ The server is light: it sits at almost no CPU between updates. It runs in the ba
 7. Click **Install** (or **Update**, **Repair** or **Reinstall**) and watch the train run along the progress bar
    (about a minute; **Show details** shows each step). Train Tracker starts as the last step.
 8. Click **Finish**. With **Open the map now** ticked, the map opens in your browser. The very first start
-   downloads the rail map and schedules, so trains can take another minute or two to appear. You can delete the
-   downloaded folder now.
+   downloads the rail map and schedules, so trains can take another minute or two to appear. You can eject the
+   disk image and delete the download now.
 
 ### Start and stop
 
@@ -114,14 +115,13 @@ connections, click **Allow**. Then see section 5.
 
 ### Step 1: Download US Train Tracker
 
-1. Download **[US Train Tracker for Windows](https://github.com/projectmoonpi/train-tracker/releases/download/v1.0.2/US-Train-Tracker-for-Windows-v1.0.2.zip)** (it's also on the
-   [Releases page](https://github.com/projectmoonpi/train-tracker/releases/latest), as **US-Train-Tracker-for-Windows-v1.0.2.zip**).
-2. In your Downloads folder, right-click the zip and choose **Extract All…**. You get a folder named
-   **US Train Tracker 1.0.2 for Windows**, with a READ ME FIRST note and this guide inside.
+1. Download **[US Train Tracker for Windows](https://github.com/projectmoonpi/train-tracker/releases/download/v1.0.2/Install-US-Train-Tracker-for-Windows-v1.0.2.exe)** (it's also on the
+   [Releases page](https://github.com/projectmoonpi/train-tracker/releases/latest), as
+   **Install-US-Train-Tracker-for-Windows-v1.0.2.exe**): one file, the installer. Nothing to extract.
 
 ### Step 2: Run the installer
 
-1. In that folder, double-click **Install Train Tracker** (the train icon).
+1. In your Downloads folder, double-click **Install-US-Train-Tracker-for-Windows** (the train icon).
 2. Windows may show "Windows protected your PC" because the installer isn't signed. Click **More info**, then
    **Run anyway**.
 3. The installer's window opens. Choose, then click **Install**:
@@ -142,7 +142,7 @@ connections, click **Allow**. Then see section 5.
    says Windows is about to ask whether **Install Train Tracker.exe** may make changes: click **Yes**.
 5. Click **Finish**. Leave **Open the map now** ticked to see the map in your browser. The very first start
    downloads the rail map and schedules, so trains can take another minute or two to appear. You can delete
-   the downloaded folder now.
+   the download now.
 
 ### Start and stop
 
@@ -176,7 +176,7 @@ newer one (Train Tracker asks GitHub a few times a day; **Check now** asks at on
 Tracker, **Update to <version>** downloads the new version in the background, checks it's the file GitHub
 published, unpacks it and opens its installer in front of everything: click **Update** there. Train Tracker is
 stopped, updated and started again, and your settings, maps and API keys are kept. (Phones and other devices are
-told to update from that computer. **Or download it yourself** gets the zip to install by hand.)
+told to update from that computer. **Or download it yourself** gets the installer to run by hand.)
 
 ## 5. Use it on an iPhone, iPad or Android phone
 
@@ -269,7 +269,7 @@ that railroad straight away.
 
 ## 9. Updating and removing
 
-**Updating (Mac or Windows):** download the new zip for your computer and run its installer, just like the
+**Updating (Mac or Windows):** download the new version for your computer and run its installer, just like the
 first time. It stops Train Tracker, compares the installed files with the new ones and updates those that
 differ, and keeps your settings, API keys and downloaded data. Running the installer again is also how you
 change your answers (phones, start at log-in, Desktop icons), and how you **Repair** it (checks every file and
@@ -283,8 +283,7 @@ then installs it new): see section 2.
   asks whether Uninstall Train Tracker may access files in your Desktop folder: click **Allow**, so it can
   remove its icons from the Desktop. (If you don't, it tells you to drag them to the Trash.)
 - **Windows:** click **Remove Train Tracker** in **Start menu › Train Tracker**, or double-click **Uninstall
-  Train Tracker** in the folder you installed it in or in the downloaded folder beside **Install Train
-  Tracker**; or open **Settings › Apps**, find **US Train Tracker** and click **Uninstall**. A window asks
+  Train Tracker** in the folder you installed it in; or open **Settings › Apps**, find **US Train Tracker** and click **Uninstall**. A window asks
   whether to delete your data too, then shows its progress until it's done.
 
 It removes the service, the icons and the program. Python stays, for anything else that uses it. Your data
