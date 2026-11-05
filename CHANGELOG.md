@@ -4,6 +4,8 @@ All notable changes to this project are listed here. Versions follow [Semantic V
 
 ## [Unreleased]
 
+## [1.0.5] - 2026-11-05
+
 - **Windows: the firewall note matches what Windows will do.** Before opening the firewall for phones, the
   installer checks Windows' User Account Control setting: no "click Yes" note when Windows gives admin rights
   without asking ("Never notify", or UAC off); the usual note on a normal PC; an administrator's-password note on an
