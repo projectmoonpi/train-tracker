@@ -479,7 +479,7 @@ static class Install
         string networkNote = null;
         if (phones)
         {
-            Ui.Progress("Letting phones on your home network reach the map...", 89);
+            Ui.Progress("Finishing setting up Train Tracker...", 89);     // (the firewall, for phones)
             string state = Firewall.Ensure(port, BasePythonW(AppDir), Ui.Unattended);
             App.Log("firewall: " + state);
             if (state == "Declined")
