@@ -4,6 +4,11 @@ All notable changes to this project are listed here. Versions follow [Semantic V
 
 ## [Unreleased]
 
+- The downloads now have the version in their names, so you can tell which Train Tracker you have:
+  **US-Train-Tracker-for-Mac-v1.0.1.zip**, **US-Train-Tracker-for-Windows-v1.0.1.zip** and
+  **US-Train-Tracker-Install-Guide-v1.0.1.pdf**, and the folder inside each zip is **US Train Tracker 1.0.1 for
+  Mac** (or Windows). The download links in the README and the guide go to each new release's files.
+
 ## [1.0.0] - 2026-11-04
 
 - **1.0.0: Train Tracker's first production release.** It's out of testing.

@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
 """Build the two downloads attached to each GitHub release:
 
-  dist/US-Train-Tracker-for-Mac.zip       Install Train Tracker.app (the program and the Mac installer inside it:
-                                          build_mac_app(); needs a Mac, for macOS's osacompile and codesign)
-  dist/US-Train-Tracker-for-Windows.zip   Install Train Tracker.exe + the Windows installer pieces
+  dist/US-Train-Tracker-for-Mac-v<version>.zip       Install Train Tracker.app (the program and the Mac installer
+                                                     inside it: build_mac_app(); needs a Mac, for macOS's osacompile
+                                                     and codesign)
+  dist/US-Train-Tracker-for-Windows-v<version>.zip   Install Train Tracker.exe + the Windows installer pieces
+  dist/US-Train-Tracker-Install-Guide-v<version>.pdf the printable guide
+
+The version is in each file's name (and the zip's folder), so a download says which Train Tracker it is.
 
 Each holds the app (installed from the folder by the installer), the printable guide and a READ ME FIRST note.
 The release workflow runs this; it also runs locally:  python3 tools/make_downloads.py
@@ -132,8 +136,8 @@ def build_mac_app(dest, files):
 
 
 def build(platform):
-    top = f"US Train Tracker for {platform}"
-    out = DIST / f"US-Train-Tracker-for-{platform}.zip"
+    top = f"US Train Tracker {VERSION} for {platform}"
+    out = DIST / f"US-Train-Tracker-for-{platform}-v{VERSION}.zip"
     windows = platform == "Windows"
     files = [ROOT / f for f in COMMON]
     files += [p for p in sorted((ROOT / "src").rglob("*"))
@@ -181,6 +185,17 @@ def build(platform):
     return out
 
 
+def guide():
+    """The printable guide, as the release attaches it (with the version in its name)."""
+    DIST.mkdir(exist_ok=True)
+    out = DIST / f"US-Train-Tracker-Install-Guide-v{VERSION}.pdf"
+    shutil.copyfile(GUIDE, out)
+    print(f"wrote {out.relative_to(ROOT)}")
+    return out
+
+
 if __name__ == "__main__":
     for p in (sys.argv[1:] or ["Mac", "Windows"]):
         build(p)
+    if not sys.argv[1:]:
+        guide()
