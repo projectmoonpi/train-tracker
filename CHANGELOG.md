@@ -4,6 +4,11 @@ All notable changes to this project are listed here. Versions follow [Semantic V
 
 ## [Unreleased]
 
+- **Windows: the firewall note matches what Windows will do.** Before opening the firewall for phones, the
+  installer checks Windows' User Account Control setting: no "click Yes" note when Windows gives admin rights
+  without asking ("Never notify", or UAC off); the usual note on a normal PC; an administrator's-password note on an
+  account that isn't an administrator; and "If Windows asks…" when it can't tell. The uninstaller's note too.
+
 ## [1.0.4] - 2026-11-05
 
 - **Windows: the train icon by the clock stays.** It's green while Train Tracker runs and turns red when it's
