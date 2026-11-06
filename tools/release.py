@@ -1,7 +1,7 @@
 """Cut a release: bump the version, date the CHANGELOG, commit, and tag.
 
     .venv/bin/python tools/release.py 0.2.0
-    git push && git push origin v0.2.0      # the Release workflow builds and publishes it
+    git push && git push origin v0.2.0      # the Release workflow builds and publishes it, then deletes older ones
 
 Move your notes under "## [Unreleased]" in CHANGELOG.md first; they become the release notes.
 
@@ -64,7 +64,9 @@ def main():
     run("git", "add", str(INIT), str(CHANGELOG), str(README), str(INSTALL), str(GUIDE_PDF))
     run("git", "commit", "-m", f"Release v{version}\n\n{CO_AUTHOR}")
     run("git", "tag", "-a", f"v{version}", "-m", f"v{version}")
-    print(f"\nTagged v{version}. Publish with:\n  git push && git push origin v{version}")
+    print(f"\nTagged v{version}. Publish with:\n  git push && git push origin v{version}\n"
+          "The Release workflow then deletes every older release and its tag (only the current one stays). When it\n"
+          "has finished, drop the old tags from this clone too:\n  python3 tools/prune_releases.py --delete")
 
 
 if __name__ == "__main__":

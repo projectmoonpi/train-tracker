@@ -51,3 +51,9 @@ jobs:
           } > full-notes.md && mv full-notes.md notes.md
           gh release create "$GITHUB_REF_NAME" dist/* \
             --title "$GITHUB_REF_NAME" --notes-file notes.md
+
+      # only the current version stays downloadable (tools/prune_releases.py: every older release goes, with its tag)
+      - name: Keep only this release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python tools/prune_releases.py --delete
