@@ -70,7 +70,7 @@ def inline(text):
 
     def link(m):
         label, url = m.group(1), m.group(2)
-        if not re.match(r"https?:", url):
+        if not re.match(r"https?:|mailto:", url):
             url = f"{REPO}/blob/main/docs/{url}"
         return f'<link href="{url}" color="#1f5fbf"><u>{label}</u></link>'
     return re.sub(r"\[([^\]]+)\]\(([^)]+)\)", link, text)
@@ -144,6 +144,9 @@ def cover():
             Paragraph("Installation Guide", S["sub"]), Spacer(1, 0.3 * inch),
             Paragraph("Mac · Windows · Raspberry Pi · iPhone · Android", S["small"]), Spacer(1, 1.2 * inch),
             Paragraph("Designed and Created by Project Moon Pi", S["credit"]), Spacer(1, 8),
+            Paragraph('<link href="https://www.projectmoonpi.com">www.projectmoonpi.com</link> · Help: '
+                      '<link href="mailto:support@projectmoonpi.com">support@projectmoonpi.com</link>', S["small"]),
+            Spacer(1, 4),
             Paragraph(f"{datetime.date.today():%B %Y} · {REPO.replace('https://', '')}", S["small"]),
             PageBreak()]
 
@@ -154,7 +157,7 @@ def footer(canvas, doc):
     canvas.saveState()
     canvas.setFont("Sans", 8)
     canvas.setFillColor(MUTED)
-    canvas.drawString(inch, 0.55 * inch, "US Train Tracker · Installation Guide · Designed and Created by Project Moon Pi")
+    canvas.drawString(inch, 0.55 * inch, "US Train Tracker · Installation Guide · Designed and Created by Project Moon Pi · www.projectmoonpi.com")
     canvas.drawRightString(LETTER[0] - inch, 0.55 * inch, str(doc.page))
     canvas.restoreState()
 

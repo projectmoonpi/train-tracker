@@ -40,6 +40,8 @@ AUTO = DRY and "--auto" in sys.argv
 APP = "Train Tracker"
 TITLE = f"Uninstall {APP}" if UNINSTALL else f"Install {APP}"
 CREDIT = "Designed and Created by Project Moon Pi"
+SUPPORT = "support@projectmoonpi.com"              # help, on the "went wrong" page
+HELP_PAGE = "https://www.projectmoonpi.com/support/"
 APPDIR = os.path.expanduser("~/Library/Application Support/Train Tracker")
 DATA = os.path.expanduser("~/.train-tracker")       # maps, schedules and API keys (kept unless the uninstaller deletes them)
 LOG = os.path.expanduser(f"~/Library/Logs/{TITLE}.log")
@@ -714,6 +716,13 @@ class Installer:
                   + ("Check the internet connection, then run the installer again." if not UNINSTALL else
                      "You can run Uninstall Train Tracker again."))
         ttk.Button(self.body, text="Show the log", command=lambda: subprocess.run(["open", "-R", LOG])).pack(anchor="w")
+        self.text(f"Need help? Email {SUPPORT} (with the log, if you can) or see www.projectmoonpi.com/support.",
+                  pady=(12, 0))
+        row = ttk.Frame(self.body)
+        row.pack(anchor="w")
+        ttk.Button(row, text="Email support", command=lambda: subprocess.run(
+            ["open", f"mailto:{SUPPORT}?subject={TITLE.replace(' ', '%20')}%20problem"])).pack(side="left")
+        ttk.Button(row, text="Help page", command=lambda: subprocess.run(["open", HELP_PAGE])).pack(side="left", padx=(8, 0))
         self.fit()
 
 

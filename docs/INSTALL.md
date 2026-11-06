@@ -2,7 +2,7 @@
 
 # US Train Tracker: Installation Guide
 
-**Designed and Created by Project Moon Pi**
+**Designed and Created by Project Moon Pi** · [www.projectmoonpi.com](https://www.projectmoonpi.com/train-tracker/)
 
 This guide takes you from nothing to a live train map on your computer, phone or tablet. It covers macOS,
 Windows and a Raspberry Pi, and how to open the map on an iPhone or Android phone. No programming is needed.
@@ -51,7 +51,8 @@ The server is light: it sits at almost no CPU between updates. It runs in the ba
 
 ### Step 1: Download US Train Tracker
 
-1. Download **[US Train Tracker for Mac](https://github.com/projectmoonpi/train-tracker/releases/download/v1.0.7/US-Train-Tracker-for-Mac-v1.0.7.dmg)** (it's also on the
+1. Download **[US Train Tracker for Mac](https://github.com/projectmoonpi/train-tracker/releases/download/v1.0.7/US-Train-Tracker-for-Mac-v1.0.7.dmg)** (it's also on
+   [www.projectmoonpi.com/downloads](https://www.projectmoonpi.com/downloads/#train-tracker) and the
    [Releases page](https://github.com/projectmoonpi/train-tracker/releases/latest), as **US-Train-Tracker-for-Mac-v1.0.7.dmg**):
    one file, a disk image.
 2. Double-click the downloaded disk image. A window opens with **Install Train Tracker**, a READ ME FIRST note
@@ -115,7 +116,8 @@ connections, click **Allow**. Then see section 5.
 
 ### Step 1: Download US Train Tracker
 
-1. Download **[US Train Tracker for Windows](https://github.com/projectmoonpi/train-tracker/releases/download/v1.0.7/Install-US-Train-Tracker-for-Windows-v1.0.7.exe)** (it's also on the
+1. Download **[US Train Tracker for Windows](https://github.com/projectmoonpi/train-tracker/releases/download/v1.0.7/Install-US-Train-Tracker-for-Windows-v1.0.7.exe)** (it's also on
+   [www.projectmoonpi.com/downloads](https://www.projectmoonpi.com/downloads/#train-tracker) and the
    [Releases page](https://github.com/projectmoonpi/train-tracker/releases/latest), as
    **Install-US-Train-Tracker-for-Windows-v1.0.7.exe**): one file, the installer. Nothing to extract.
 
@@ -308,10 +310,13 @@ or `C:\Users\<your name>\.train-tracker` (Windows).
 | VRE shows 0 trains | Normal outside weekday rush hours |
 | Metra, Caltrain, Metrolink or NJ Transit say "needs an API key" | See section 8 |
 
-Still stuck? Open an issue on the [GitHub page](https://github.com/projectmoonpi/train-tracker/issues).
+Still stuck? Email **[support@projectmoonpi.com](mailto:support@projectmoonpi.com)** (say which computer and
+what you see; the log named above helps), or see the [support page](https://www.projectmoonpi.com/support/).
+You can also open an issue on the [GitHub page](https://github.com/projectmoonpi/train-tracker/issues).
+For anything else, write to **[sales@projectmoonpi.com](mailto:sales@projectmoonpi.com)**.
 
 ---
 
 US Train Tracker is free software (MIT licence). Train data comes from each railroad's public feeds under
 their terms; see the Credits in the [README](../README.md). Built with Claude Code (Anthropic).
-**Designed and Created by Project Moon Pi.**
+**Designed and Created by Project Moon Pi** · [www.projectmoonpi.com](https://www.projectmoonpi.com)

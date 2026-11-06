@@ -4,6 +4,13 @@ All notable changes to this project are listed here. Versions follow [Semantic V
 
 ## [Unreleased]
 
+- Help and contact by email and on Project Moon Pi's website: **support@projectmoonpi.com** for help and bug
+  reports, **sales@projectmoonpi.com** for anything else, and **www.projectmoonpi.com** (where the downloads are
+  too). They're in the map's About and credits, the README (a new Help and contact section), the installation
+  guide and its PDF (cover, footer and "Still stuck?"), and the READ ME FIRST in the Mac download. When the Mac or
+  Windows installer can't finish, its message says where to get help (on the Mac, with Email support and Help
+  page buttons). Settings > Apps on Windows links to the website and the support page.
+
 ## [1.0.7] - 2026-11-05
 
 - Windows installer: its progress bar now matches the Mac installer's: the Project Moon Pi patch rides the bar's

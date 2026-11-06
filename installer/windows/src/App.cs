@@ -19,7 +19,10 @@ static partial class App
     public const string Display = "US Train Tracker";      // the window's header, Settings > Apps
     public const string Id = "ProjectMoonPi.TrainTracker"; // Settings > Apps, the stop signal
     public const string Slug = "train-tracker";            // <slug>.log and <slug>.pid in the install folder
-    public const string Url = "https://github.com/projectmoonpi/train-tracker";
+    public const string Url = "https://www.projectmoonpi.com/train-tracker/";      // Settings > Apps: its web page
+    public const string HelpUrl = "https://www.projectmoonpi.com/support/";        // Settings > Apps: help
+    public const string Support = "support@projectmoonpi.com";                     // for help, in the error messages
+    public const string HelpLine = "Need help? Email " + Support + " or see www.projectmoonpi.com/support.";
     public const string InfoFile = "settings.json";        // what the installer wrote: port, choices, version
     // where earlier versions installed it (worked out when asked: a static field here can't rely on Common.cs's)
     public static string[] OldDirs { get { return new[] {

@@ -48,6 +48,9 @@ While it runs, its train icon is in the menu bar: click it for the map, the API 
 Start, Stop and Uninstall Train Tracker are in Applications > Train Tracker (Start and Stop on your Desktop
 too, if you chose). Uninstall asks whether to keep your maps and API keys for the next install.
 Once it's installed you can eject this disk image and delete the download. The full guide is "US Train Tracker - Installation Guide.pdf".
+
+Need help? Email support@projectmoonpi.com or see www.projectmoonpi.com/support.
+Anything else: sales@projectmoonpi.com.  Website: www.projectmoonpi.com
 """,
 }
 

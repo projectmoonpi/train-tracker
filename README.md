@@ -2,7 +2,7 @@
 
 # US Train Tracker
 
-**Designed and Created by Project Moon Pi**
+**Designed and Created by Project Moon Pi** · [www.projectmoonpi.com](https://www.projectmoonpi.com/train-tracker/)
 
 Live Amtrak and commuter-rail positions on a map of US passenger track, in your browser.
 
@@ -16,6 +16,7 @@ Live Amtrak and commuter-rail positions on a map of US passenger track, in your 
 Both need Python 3.11 or newer: if the computer doesn't have it, the installer offers to install it from
 [python.org](https://www.python.org/downloads/) for you. The installer sets Train Tracker up as a background service with **Start** and **Stop** icons. Step by step, including Raspberry Pi, iPhone and
 Android: the **[Installation Guide](docs/INSTALL.md)** ([printable PDF](docs/US-Train-Tracker-Install-Guide.pdf)).
+The downloads are also on Project Moon Pi's website: [www.projectmoonpi.com/downloads](https://www.projectmoonpi.com/downloads/#train-tracker).
 
 ## How it works
 
@@ -242,6 +243,14 @@ holds what's Train Tracker's own; the other files are shared with SkyScope and A
 * NARN stores one centreline per route, so the track a train is on is inferred (right-hand running), not known.
 * Car counts are typical for each service except SEPTA, whose feed lists the cars.
 * Freight track is shown, but not freight trains: railroads don't publish live freight positions.
+
+## Help and contact
+
+* **Help** installing or using Train Tracker, or a bug to report: email **[support@projectmoonpi.com](mailto:support@projectmoonpi.com)**,
+  or see the [support page](https://www.projectmoonpi.com/support/). You can also open an
+  [issue on GitHub](https://github.com/projectmoonpi/train-tracker/issues).
+* **Anything else** (business, partnerships, the press): **[sales@projectmoonpi.com](mailto:sales@projectmoonpi.com)**.
+* Website: **[www.projectmoonpi.com](https://www.projectmoonpi.com)**
 
 ## Credits
 
