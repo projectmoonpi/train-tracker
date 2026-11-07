@@ -4,6 +4,8 @@ All notable changes to this project are listed here. Versions follow [Semantic V
 
 ## [Unreleased]
 
+## [1.0.8] - 2026-11-06
+
 - Help and contact by email and on Project Moon Pi's website: **support@projectmoonpi.com** for help and bug
   reports, **sales@projectmoonpi.com** for anything else, and **www.projectmoonpi.com** (where the downloads are
   too). They're in the map's About and credits, the README (a new Help and contact section), the installation
