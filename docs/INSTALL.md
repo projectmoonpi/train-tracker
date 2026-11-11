@@ -131,7 +131,8 @@ connections, click **Allow**. Then see section 5.
      **Update**, **Repair** or **Reinstall from scratch** (what each does is in section 3, step 5). **< Back**
      returns to it.
    - **Install in**: where Train Tracker goes. Keep the suggested folder (in your user folder), or click
-     **Browse...** to pick another (Program Files needs admin permission, so it can't go there).
+     **Browse...** to pick another (Program Files needs admin permission, so it can't go there; nor can the Desktop,
+     Documents, Downloads or OneDrive, where ransomware protection and OneDrive syncing stop it saving its settings).
    - **Let phones and tablets on my Wi-Fi open the map**: tick it if you'll use a phone or tablet.
    - **Start Train Tracker when I sign in to Windows**: tick it to have it always running while you're signed in.
    - **Put Open Train Tracker, and Start and Stop Train Tracker Service, on the Desktop**: untick it to keep them

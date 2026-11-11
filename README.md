@@ -80,7 +80,8 @@ shared beyond your own network unless you set up remote access (the guide covers
 Tracker**; on Windows, double-click the downloaded installer. The installer:
 
 * installs it for you (Mac: `~/Library/Application Support/Train Tracker`; Windows: `%LOCALAPPDATA%\Programs\Project Moon Pi\Train Tracker`,
-  or a folder you choose),
+  or a folder you choose, though not the Desktop, Documents, Downloads or OneDrive, where ransomware protection and
+  OneDrive stop it saving its settings),
 * asks whether phones on your Wi-Fi may open the map, whether it should start when you log in, and whether to put
   Start and Stop on your Desktop,
 * sets it up as a **background service** (a LaunchAgent on macOS, a hidden process on Windows), and

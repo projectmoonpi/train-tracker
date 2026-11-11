@@ -170,6 +170,32 @@ static class Install
         return chosen;
     }
 
+    // Folders Windows guards or syncs: ransomware protection (Bitdefender's Safe Files, Windows' Controlled folder
+    // access) stops unknown programs writing in Desktop, Documents and the like, and OneDrive syncs and locks what's
+    // in it. The installer can put the program there, but the program then can't write its settings, log or caches
+    // ("Permission denied"), so it isn't offered. The folder's name, or null.
+    static string Guarded(string dir)
+    {
+        var places = new System.Collections.Generic.List<string[]>();
+        Action<Environment.SpecialFolder, string> known = (f, name) => places.Add(new[] { Environment.GetFolderPath(f), name });
+        known(Environment.SpecialFolder.DesktopDirectory, "Desktop");
+        known(Environment.SpecialFolder.MyDocuments, "Documents");
+        known(Environment.SpecialFolder.MyPictures, "Pictures");
+        known(Environment.SpecialFolder.MyMusic, "Music");
+        known(Environment.SpecialFolder.MyVideos, "Videos");
+        places.Add(new[] { Path.Combine(Env("USERPROFILE") ?? "", "Downloads"), "Downloads" });
+        foreach (var v in new[] { "OneDrive", "OneDriveConsumer", "OneDriveCommercial" }) places.Add(new[] { Env(v), "OneDrive" });
+        string d = dir.TrimEnd('\\');
+        foreach (var p in places)
+        {
+            if (string.IsNullOrEmpty(p[0]) || !Path.IsPathRooted(p[0])) continue;
+            string root = p[0].TrimEnd('\\');
+            if (d.Equals(root, StringComparison.OrdinalIgnoreCase) || d.StartsWith(root + "\\", StringComparison.OrdinalIgnoreCase))
+                return p[1];
+        }
+        return null;
+    }
+
     // an error to show, or null if it can go there
     static string CheckFolder(string path)
     {
@@ -180,6 +206,11 @@ static class Install
             if (!string.IsNullOrEmpty(bad) && dir.StartsWith(bad, StringComparison.OrdinalIgnoreCase))
                 return App.Name + " installs just for you, without asking for admin permission, so it can't go in " + bad +
                        ". Choose a folder of your own, such as the one it suggests.";
+        string guarded = Guarded(dir);
+        if (guarded != null)
+            return App.Name + " can't run from your " + guarded + " folder: Windows' ransomware protection and OneDrive keep " +
+                   "it from saving its settings there. Choose another folder, such as the one it suggests. (Its Open " +
+                   App.Name + " icon can still go on the Desktop.)";
         try
         {
             Directory.CreateDirectory(dir);
@@ -239,7 +270,7 @@ static class Install
         string intro = "Live US passenger trains on a map, in your web browser. This installs Train Tracker for you on this PC; it runs quietly in the background, with a train icon by the clock.";
         if (py == null) intro += "\n\nIt also installs Python " + App.PyVersion + " from python.org (" + App.PySize + "), which Train Tracker runs on.";
         string was = App.InstalledDir();
-        string suggest = Env("SS_DIR") ?? was ?? App.DefaultDir;
+        string suggest = Env("SS_DIR") ?? (was != null && Guarded(was) == null ? was : null) ?? App.DefaultDir;   // (not a guarded folder an older copy went in)
 
         // already installed? Then update (this one's newer), repair (the same) or reinstall from scratch
         string newVersion = Regex.Match(File.ReadAllText(Path.Combine(Src, @"src\train_tracker\__init__.py")), "__version__ = \"([^\"]+)\"").Groups[1].Value;

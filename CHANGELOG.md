@@ -4,6 +4,11 @@ All notable changes to this project are listed here. Versions follow [Semantic V
 
 ## [Unreleased]
 
+- Windows installer: it no longer installs into the Desktop, Documents, Downloads or OneDrive folders. Ransomware
+  protection (Bitdefender's Safe Files, Windows' Controlled folder access) and OneDrive syncing kept Train Tracker
+  from saving its settings there ("Permission denied"); it says so and suggests the usual folder. An update of a copy
+  already in one of those folders suggests the usual folder too.
+
 ## [1.0.9] - 2026-11-10
 
 - The new Project Moon Pi badge: the patch without the red swoosh, everywhere it appears (the start-up splash and
