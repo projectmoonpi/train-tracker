@@ -1,3 +1,3 @@
 """Live US passenger-train map: Amtrak and commuter rail over FRA NARN track."""
 
-__version__ = "1.0.8"
+__version__ = "1.0.9"
