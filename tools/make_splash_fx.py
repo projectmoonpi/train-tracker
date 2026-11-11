@@ -1,7 +1,7 @@
 """Map the Project Moon Pi badge for the animated start-up splash (web/splashfx.js).
 
-Ported from the M.O.S.S. dash (bobcat-dash, same author, MIT). It finds the red swoosh (the path the lens flare
-runs along, ending at its tip), the stars (to twinkle), the lander's engine flames (to flicker) and the white
+Ported from the M.O.S.S. dash (bobcat-dash, same author, MIT). It finds the lens flare's path (the outer white ring, ending on the pi of MOON pi; on the
+old badge, before November 2026, the red swoosh), the stars (to twinkle), the lander's engine flames (to flicker) and the white
 rings and lettering (for the metal sheen), and writes, next to the picture:
 
   <name>.fx.json   the flare path, the stars and the flame centres, in the picture's own pixels
@@ -26,6 +26,36 @@ def badge(white):
     ys, xs = np.nonzero(white)
     cx, cy = (xs.min() + xs.max()) / 2, (ys.min() + ys.max()) / 2
     return cx, cy, (xs.max() - xs.min() + ys.max() - ys.min()) / 4
+
+
+def ring_path(white, cx, cy, R, rad, inner):
+    """The badge without a swoosh (2026-11): the flare runs along the outer white ring, from the lower left over
+    the top and round to the lower right, then curves in to finish on the white pi of MOON pi (the tip)."""
+    H, W = white.shape
+    yy, xx = np.mgrid[:H, :W]
+    prof = [(white & (rad >= k) & (rad < k + 0.01)).sum() for k in np.arange(0.86, 1.04, 0.01)]
+    rr = 0.86 + 0.01 * int(np.argmax(prof)) + 0.005           # the middle of the outer ring
+    ang = np.degrees(np.arctan2(yy - cy, xx - cx))
+    # the pi: the biggest white shape in the lower-right of the lettering band
+    zone = white & (rad > inner + 0.03) & (rad < rr - 0.06) & (ang > 35) & (ang < 85)
+    lab, n = ndi.label(ndi.binary_dilation(zone, iterations=max(2, int(R / 80))))   # pi's strokes as one shape
+    if n:
+        big = lab == (np.argmax(ndi.sum(zone, lab, range(1, n + 1))) + 1)
+        ys, xs = np.nonzero(big & zone)
+        px, py = (xs.min() + xs.max()) / 2, (ys.min() + ys.max()) / 2              # the middle of the pi
+    else:                                                       # no pi found: end at 60 degrees on the band
+        px, py = cx + 0.78 * R * np.cos(np.radians(60)), cy + 0.78 * R * np.sin(np.radians(60))
+    pa = float(np.degrees(np.arctan2(py - cy, px - cx)))
+    pr = float(np.hypot(px - cx, py - cy)) / R
+    path = []
+    a0, a1 = 160.0, 360.0 + pa - 14                              # clockwise on screen (y grows downwards)
+    for a in np.arange(a0, a1, 3.0):
+        path.append([round(cx + rr * R * np.cos(np.radians(a)), 1), round(cy + rr * R * np.sin(np.radians(a)), 1)])
+    for k in np.linspace(0, 1, 8)[1:]:                         # the last stretch curves in onto the pi
+        a = np.radians(a1 + 14 * k)
+        r = (rr + (pr - rr) * k * k) * R
+        path.append([round(cx + r * np.cos(a), 1), round(cy + r * np.sin(a), 1)])
+    return path, (int(round(px)), int(round(py)))
 
 
 def analyse(path):
@@ -61,17 +91,20 @@ def analyse(path):
         width = (sl[1].stop - sl[1].start) / R
         (swoosh if width > 0.45 else letters)[part] = True
 
-    # the flare's path: the main (biggest) swoosh strand's centre line, from its far left end to the tip
-    lab, n = ndi.label(swoosh)
-    main = lab == (np.argmax(ndi.sum(swoosh, lab, range(1, n + 1))) + 1)
-    ys, xs = np.nonzero(main)
-    path = []
-    for x in range(xs.min(), xs.max() + 1, max(1, int(R / 40))):
-        col = ys[xs == x]
-        if len(col):
-            path.append([int(x), float(np.median(col))])
-    tip = (int(xs.max()), int(ys[xs == xs.max()].min()))
-    path.append([tip[0], float(tip[1])])
+    if swoosh.any():
+        # the old badge (with the red swoosh): the main strand's centre line, from its far left end to the tip
+        lab, n = ndi.label(swoosh)
+        main = lab == (np.argmax(ndi.sum(swoosh, lab, range(1, n + 1))) + 1)
+        ys, xs = np.nonzero(main)
+        path = []
+        for x in range(xs.min(), xs.max() + 1, max(1, int(R / 40))):
+            col = ys[xs == x]
+            if len(col):
+                path.append([int(x), float(np.median(col))])
+        tip = (int(xs.max()), int(ys[xs == xs.max()].min()))
+        path.append([tip[0], float(tip[1])])
+    else:
+        path, tip = ring_path(white, cx, cy, R, rad, inner)
 
     # stars: small bright spots in the blue ring and the sky, away from the white rings and the lettering
     bright = (mn > 200)

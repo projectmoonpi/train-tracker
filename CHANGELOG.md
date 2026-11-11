@@ -4,6 +4,11 @@ All notable changes to this project are listed here. Versions follow [Semantic V
 
 ## [Unreleased]
 
+- The new Project Moon Pi badge: the patch without the red swoosh, everywhere it appears (the start-up splash and
+  its light show, whose lens flare now runs round the badge's outer ring and bursts on the π, the map's panel and
+  About, the browser and home-screen icons, the installer and its progress bar, the Start, Stop, Uninstall and app
+  icons, and the installation guide).
+
 ## [1.0.8] - 2026-11-06
 
 - Help and contact by email and on Project Moon Pi's website: **support@projectmoonpi.com** for help and bug
