@@ -4,6 +4,8 @@ All notable changes to this project are listed here. Versions follow [Semantic V
 
 ## [Unreleased]
 
+## [1.0.10] - 2026-11-11
+
 - Windows installer: it no longer installs into the Desktop, Documents, Downloads or OneDrive folders. Ransomware
   protection (Bitdefender's Safe Files, Windows' Controlled folder access) and OneDrive syncing kept Train Tracker
   from saving its settings there ("Permission denied"); it says so and suggests the usual folder. An update of a copy
