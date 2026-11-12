@@ -4,6 +4,8 @@ All notable changes to this project are listed here. Versions follow [Semantic V
 
 ## [Unreleased]
 
+## [1.0.11] - 2026-11-11
+
 - Told when there's a newer Train Tracker: a note at the top of the map's panel (dismissed per version), a
   **Get Train Tracker <version>…** item in the Mac menu bar icon's menu, and on Windows a notice from the icon by
   the clock, once per version (click it to update), with **Update to Train Tracker <version>...** in its menu. Each

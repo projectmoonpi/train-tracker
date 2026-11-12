@@ -51,9 +51,9 @@ The server is light: it sits at almost no CPU between updates. It runs in the ba
 
 ### Step 1: Download US Train Tracker
 
-1. Download **[US Train Tracker for Mac](https://github.com/projectmoonpi/train-tracker/releases/download/v1.0.10/US-Train-Tracker-for-Mac-v1.0.10.dmg)** (it's also on
+1. Download **[US Train Tracker for Mac](https://github.com/projectmoonpi/train-tracker/releases/download/v1.0.11/US-Train-Tracker-for-Mac-v1.0.11.dmg)** (it's also on
    [www.projectmoonpi.com/downloads](https://www.projectmoonpi.com/downloads/#train-tracker) and the
-   [Releases page](https://github.com/projectmoonpi/train-tracker/releases/latest), as **US-Train-Tracker-for-Mac-v1.0.10.dmg**):
+   [Releases page](https://github.com/projectmoonpi/train-tracker/releases/latest), as **US-Train-Tracker-for-Mac-v1.0.11.dmg**):
    one file, a disk image.
 2. Double-click the downloaded disk image. A window opens with **Install Train Tracker**, a READ ME FIRST note
    and this guide.
@@ -116,10 +116,10 @@ connections, click **Allow**. Then see section 5.
 
 ### Step 1: Download US Train Tracker
 
-1. Download **[US Train Tracker for Windows](https://github.com/projectmoonpi/train-tracker/releases/download/v1.0.10/Install-US-Train-Tracker-for-Windows-v1.0.10.exe)** (it's also on
+1. Download **[US Train Tracker for Windows](https://github.com/projectmoonpi/train-tracker/releases/download/v1.0.11/Install-US-Train-Tracker-for-Windows-v1.0.11.exe)** (it's also on
    [www.projectmoonpi.com/downloads](https://www.projectmoonpi.com/downloads/#train-tracker) and the
    [Releases page](https://github.com/projectmoonpi/train-tracker/releases/latest), as
-   **Install-US-Train-Tracker-for-Windows-v1.0.10.exe**): one file, the installer. Nothing to extract.
+   **Install-US-Train-Tracker-for-Windows-v1.0.11.exe**): one file, the installer. Nothing to extract.
 
 ### Step 2: Run the installer
 
