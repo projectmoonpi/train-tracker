@@ -217,7 +217,7 @@ class Tray:
             Item(self.phones, None, enabled=False),
             Menu.SEPARATOR,
             Item("Open the map", self.open_map, default=True),
-            Item("API keys…", self.open_keys),
+            Item("Settings…", self.open_keys),
             Item(self.update_text, self.open_update, visible=self.has_update),   # (a newer Train Tracker)
             Menu.SEPARATOR,
             Item("Stop Train Tracker", self.stop, enabled=lambda _i: not self.stopping),

@@ -182,14 +182,19 @@ its menu has **Update to Train Tracker <version>...** too).
 
 Open the map's panel, then **About and credits**: **Updates** says which version you have and whether there's a
 newer one (Train Tracker asks GitHub a few times a day; **Check now** asks at once). On the computer running Train
-Tracker, **Update to <version>** downloads the new version in the background, checks it's the file GitHub
-published, unpacks it and opens its installer in front of everything: click **Update** there. Train Tracker is
-stopped, updated and started again, and your settings, maps and API keys are kept. (Phones and other devices are
+Tracker, **Update to <version>** downloads the new version in the background and checks it's **signed by Project
+Moon Pi**: every release is signed with a private key only Project Moon Pi holds, and Train Tracker checks it
+against the key built into your copy, so a download anyone else changed or replaced (even on GitHub) is refused.
+Then it installs it with no questions: a small window shows its progress, Train Tracker is stopped, updated and
+started again, and your settings, maps, API keys and install answers (phones, start at log-in, Desktop icons) are
+kept. (Phones and other devices are
 told to update from that computer. **Or download it yourself** gets the installer to run by hand.)
 
 ## 5. Use it on an iPhone, iPad or Android phone
 
-1. Install with **Phones too** (sections 3 and 4; run the installer again to change your answer), or use a
+1. Install with **Phones too** (sections 3 and 4), or turn **Phones and tablets** on later in the map's
+   **Settings** (on the computer running Train Tracker; on Windows it may ask for an administrator's OK once, for
+   the firewall), or use a
    Raspberry Pi (section 6), and start Train Tracker.
 2. On the computer, open the map and look at the bottom of the panel for **Open on your phone**. It shows
    the address to use, such as `http://192.168.1.20:7500`, and a QR code.
@@ -309,7 +314,7 @@ or `C:\Users\<your name>\.train-tracker` (Windows).
 | Stop says it's still running | Another program is serving on port 7500 (perhaps a copy started by hand). Close it, or restart the computer |
 | The browser didn't open | Open **http://127.0.0.1:7500** yourself |
 | No train icon in the menu bar or by the clock | Train Tracker isn't running: use Start Train Tracker (on Windows, Open Train Tracker). On Windows, also look under the **^** by the clock. If it's running (the map opens) but there's still no icon, run the installer again |
-| The phone can't open the address | Check the phone is on the same Wi-Fi (not mobile data or a guest network), and that you installed with **Phones too**. On Windows, run the installer again and click **Yes** if Windows asks for permission, and make sure your network is set to Private. On a Mac, if macOS asked whether Train Tracker (or Python) may accept incoming connections, choose **Allow**. Some routers keep devices apart ("client isolation" or "AP isolation"): turn that off for your home network |
+| The phone can't open the address | Check the phone is on the same Wi-Fi (not mobile data or a guest network), and that **Phones and tablets** is on in Settings (or you installed with **Phones too**). On Windows, turn it off and on again and click **Yes** if Windows asks for permission, and make sure your network is set to Private. On a Mac, if macOS asked whether Train Tracker (or Python) may accept incoming connections, choose **Allow**. Some routers keep devices apart ("client isolation" or "AP isolation"): turn that off for your home network |
 | `raspberrypi.local` doesn't work | Use the Pi's numbered address instead: run `hostname -I` on the Pi |
 | Map shows but no track | The first start is still downloading the rail map: wait a minute and reload |
 | A railroad shows a red or amber dot | Its feed is down or its key was refused: the panel says why. Feeds come back by themselves |

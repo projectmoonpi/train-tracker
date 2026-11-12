@@ -37,6 +37,10 @@ ROOT = os.path.dirname(os.path.dirname(HERE))       # the program's files: in th
 UNINSTALL = "--uninstall" in sys.argv
 DRY = "--dry-run" in sys.argv
 AUTO = DRY and "--auto" in sys.argv
+# Train Tracker's own Update (updates.py, once the download's signature checked out): no questions, the answers from
+# the last install kept (phones, start at login, Desktop icons), the window showing its progress and closing itself
+# when it's done (it stays, saying why, only if something went wrong)
+UPDATE = os.environ.get("TT_UPDATE") == "1" and not UNINSTALL
 APP = "Train Tracker"
 TITLE = f"Uninstall {APP}" if UNINSTALL else f"Install {APP}"
 CREDIT = "Designed and Created by Project Moon Pi"
@@ -357,7 +361,12 @@ class Installer:
         root.bind("<Return>", lambda e: self.next_b.instate(["!disabled"]) and self.next_b.invoke())
         root.protocol("WM_DELETE_WINDOW", self.cancel)
 
-        (self.p_confirm if UNINSTALL else self.p_welcome)()
+        if UPDATE:
+            self.mode.set("update" if INSTALLED and key(INSTALLED) < key(VERSION) else "repair" if INSTALLED else "install")
+            self.open_map.set(False)                    # (the map that asked for the update reconnects itself)
+            self.install()
+        else:
+            (self.p_confirm if UNINSTALL else self.p_welcome)()
         root.update_idletasks()                         # centred on the screen (a little above the middle)
         h = max(420, root.winfo_reqheight())
         x = (root.winfo_screenwidth() - WIDTH) // 2
@@ -574,6 +583,8 @@ class Installer:
         ttk.Checkbutton(self.body, text="  Open the map now", variable=self.open_map).pack(anchor="w", pady=(8, 0))
         self.text(CREDIT, "Note.TLabel", pady=(16, 0))
         self.fit()
+        if UPDATE:
+            self.root.after(4000, self.finish)          # (an update from Train Tracker: nothing to click)
 
     def finish(self):
         if not UNINSTALL and self.open_map.get() and not DRY:

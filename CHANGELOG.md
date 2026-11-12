@@ -4,6 +4,17 @@ All notable changes to this project are listed here. Versions follow [Semantic V
 
 ## [Unreleased]
 
+- Updates are signed: every release's downloads carry a signature made with Project Moon Pi's private key, and
+  **Update to <version>** installs only a download whose signature checks out against the key built into Train
+  Tracker (Ed25519, checked in plain Python). Anything unsigned, changed or signed by another key is refused.
+- **Update to <version>** installs with no questions: the installer runs in update mode, keeping the answers from
+  the last install (phones, start at log-in, Desktop icons), shows its progress and closes by itself.
+- **Phones and tablets** on or off in Settings (the API keys page, now called Settings), from the computer running
+  Train Tracker only. It takes effect straight away; on Windows, turning it on makes sure the firewall lets phones
+  in (Windows asks an administrator once, if needed). Updates keep the choice.
+- Releases: the Release workflow builds a draft; tools/sign_release.py signs it on the developer's Mac, publishes it
+  and removes the older releases.
+
 ## [1.0.11] - 2026-11-11
 
 - Told when there's a newer Train Tracker: a note at the top of the map's panel (dismissed per version), a

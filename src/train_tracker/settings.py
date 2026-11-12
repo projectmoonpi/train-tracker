@@ -8,6 +8,9 @@ import json
 import logging
 import os
 import re
+import subprocess
+import sys
+from pathlib import Path
 
 from aiohttp import web
 
@@ -164,7 +167,128 @@ async def test_settings(request):
     return web.json_response({"ok": True, "count": n, "message": msg})
 
 
+# --- phones and tablets: may they open the map? -----------------------------------------
+# Chosen when installing; changed later on the API keys page, from the computer running Train Tracker only. Kept in
+# <data-dir>/app-settings.json; the installer's copy of the answer (Windows' install.json, the Mac's settings.sh) is
+# kept in step, so updates keep it too.
+
+LOOPBACK = ("127.0.0.1", "localhost", "::1")
+
+
+def _app_settings(data_dir) -> Path:
+    return Path(data_dir) / "app-settings.json"
+
+
+def phones_setting(data_dir):
+    """"on", "off", or None (not chosen here yet)."""
+    try:
+        v = json.loads(_app_settings(data_dir).read_text()).get("phones")
+    except (OSError, ValueError, AttributeError):
+        return None
+    return v if v in ("on", "off") else None
+
+
+def save_phones(data_dir, on: bool):
+    path = _app_settings(data_dir)
+    try:
+        data = json.loads(path.read_text())
+    except (OSError, ValueError):
+        data = {}
+    data["phones"] = "on" if on else "off"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(data, indent=2))
+
+
+def listen_host(data_dir, given: str) -> str:
+    """Where the server listens: the switch, once it's set; until then as started (--host), written down."""
+    v = phones_setting(data_dir)
+    if v == "on":
+        return "0.0.0.0"
+    if v == "off":
+        return "127.0.0.1"
+    save_phones(data_dir, given not in LOOPBACK)
+    return given
+
+
+def installed_dir():
+    """The installed copy's folder (the one holding venv), or None when run some other way."""
+    app = Path(sys.prefix).parent
+    if sys.platform == "darwin" and app == Path.home() / "Library/Application Support/Train Tracker":
+        return app
+    if sys.platform == "win32" and (app / "Train Tracker.exe").exists():
+        return app
+    return None
+
+
+def installed_phones(on: bool):
+    """The installer's copy of the answer (its next update keeps it); on Windows, turning phones on also makes sure
+    the firewall lets them in on home networks ("Train Tracker.exe --allow-phones": Windows asks an administrator
+    only if its rule isn't there)."""
+    app = installed_dir()
+    if app is None:
+        return
+    try:
+        info = app / "install.json"
+        if info.exists():
+            data = json.loads(info.read_text(encoding="utf-8-sig"))
+            data["phones"] = on
+            info.write_text(json.dumps(data, indent=2), encoding="utf-8")
+        sh = app / "settings.sh"
+        if sh.exists():
+            text = sh.read_text()
+            line = f"PHONES={'yes' if on else 'no'}"
+            text = re.sub(r"^PHONES=.*$", line, text, flags=re.M) if "PHONES=" in text else text + line + "\n"
+            sh.write_text(text)
+    except (OSError, ValueError) as e:
+        log.warning("The installer's phones answer wasn't updated: %s", e)
+    exe = app / "Train Tracker.exe"
+    if on and sys.platform == "win32" and exe.exists():
+        try:
+            subprocess.Popen([str(exe), "--allow-phones"], cwd=str(app), close_fds=True,
+                             creationflags=0x00000008 | 0x00000200)   # DETACHED_PROCESS | CREATE_NEW_PROCESS_GROUP
+        except OSError as e:
+            log.warning("The firewall couldn't be checked: %s", e)
+
+
+def _here(request) -> bool:
+    """From this computer, by a page this server served (phones can't change this, whatever else they may)."""
+    origin = request.headers.get("Origin")
+    if origin and origin.split("://", 1)[-1] != request.host:
+        return False
+    try:
+        return ipaddress.ip_address((request.remote or "").split("%")[0]).is_loopback
+    except ValueError:
+        return False
+
+
+async def get_phones(request):
+    return web.json_response({"on": phones_setting(request.app["data_dir"]) == "on",
+                              "url": request.app.get("phone_url"), "here": _here(request),
+                              "windows": sys.platform == "win32"})
+
+
+async def set_phones(request):
+    if not _here(request):
+        return web.json_response({"ok": False, "why": "Only the computer running Train Tracker can change this."},
+                                 status=403)
+    body = await _json_body(request)
+    if not isinstance(body, dict) or not isinstance(body.get("on"), bool):
+        return web.json_response({"ok": False, "why": "bad request"}, status=400)
+    on = body["on"]
+    save_phones(request.app["data_dir"], on)
+    installed_phones(on)
+    listen = request.app.get("listen")
+    if listen:
+        import asyncio
+        # a moment after this answer has gone out, then on the network (or this computer only)
+        asyncio.get_running_loop().call_later(0.5, lambda: asyncio.ensure_future(
+            listen("0.0.0.0" if on else "127.0.0.1")))
+    return web.json_response({"ok": True, "on": on})
+
+
 def add_routes(app):
+    app.router.add_get("/api/phones", get_phones)
+    app.router.add_post("/api/phones", set_phones)
     app.router.add_get("/api/settings", get_settings)
     app.router.add_post("/api/settings", save_settings)
     app.router.add_post("/api/settings/test", test_settings)

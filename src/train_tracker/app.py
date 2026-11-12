@@ -465,19 +465,9 @@ def main(argv=None):
     log.info("US Train Tracker %s - Designed and Created by Project Moon Pi", __version__)
     load_dotenv(Path.cwd() / ".env")
     load_dotenv(args.data_dir / ".env")
-    phone_url = None
-    vm_info = None
-    if args.host not in ("127.0.0.1", "localhost", "::1"):
-        ip = net.lan_address() if args.host in ("0.0.0.0", "::", "") else args.host
-        if ip:
-            phone_url = f"http://{ip}:{args.port}"
-            log.info("On a phone or tablet on this network, open %s", phone_url)
-            vm = net.virtual_machine()
-            if vm:
-                private = net.vm_private(vm, ip, net.default_gateway(ip))
-                vm_info = {"name": vm, "private": private}
-                log.info("This computer is %s%s", vm if vm.startswith("a ") else f"a {vm} virtual machine",
-                         " on its own private network: phones on the Wi-Fi can't reach it" if private else "")
+    # phones: the API keys page's switch, once it's been set; until then as started (--host: the installer's answer)
+    host = settings.listen_host(args.data_dir, args.host)
+    phone_url, vm_info = network_info(host, args.port)
     app = make_app(args.config, args.data_dir, args.allow_remote_settings, phone_url)
     app["vm"] = vm_info
     if args.open:
@@ -488,11 +478,77 @@ def main(argv=None):
     if args.tray:
         start_tray(app, args.port)
     try:
-        web.run_app(app, host=args.host, port=args.port)
+        asyncio.run(serve(app, host, args.port))
+    except KeyboardInterrupt:
+        pass
     except OSError as e:
         if e.errno != errno.EADDRINUSE:
             raise
         sys.exit(f"port {args.port} is already in use: stop the other server or pick another with --port")
+
+
+def network_info(host, port):
+    """The address phones on this network use (None when it answers this computer only), and whether this is a
+    virtual machine on a private network of its own (phones can't reach it then)."""
+    if host in ("127.0.0.1", "localhost", "::1"):
+        return None, None
+    ip = net.lan_address() if host in ("0.0.0.0", "::", "") else host
+    if not ip:
+        return None, None
+    phone_url = f"http://{ip}:{port}"
+    log.info("On a phone or tablet on this network, open %s", phone_url)
+    vm_info = None
+    vm = net.virtual_machine()
+    if vm:
+        private = net.vm_private(vm, ip, net.default_gateway(ip))
+        vm_info = {"name": vm, "private": private}
+        log.info("This computer is %s%s", vm if vm.startswith("a ") else f"a {vm} virtual machine",
+                 " on its own private network: phones on the Wi-Fi can't reach it" if private else "")
+    return phone_url, vm_info
+
+
+async def serve(app, host, port):
+    """Runs the server until it's stopped (Ctrl+C, or a stop from the service manager), and can move it between
+    the whole network and this computer only while it runs (app["listen"]: the phones switch)."""
+    import signal
+    runner = web.AppRunner(app, handle_signals=False)
+    await runner.setup()
+    site = web.TCPSite(runner, host, port)
+    await site.start()
+    log.info("Serving on http://%s:%d", host, port)
+    state = {"site": site, "host": host}
+    lock = asyncio.Lock()
+
+    async def listen(new_host):
+        """Answer on new_host from now on (0.0.0.0: the network; 127.0.0.1: this computer only)."""
+        async with lock:
+            if new_host == state["host"]:
+                return
+            await state["site"].stop()
+            for h in (new_host, state["host"]):        # (if the new address won't do, the old one again)
+                try:
+                    site = web.TCPSite(runner, h, port)
+                    await site.start()
+                except OSError as e:
+                    log.warning("Can't listen on %s:%d: %s", h, port, e)
+                    continue
+                state.update(site=site, host=h)
+                app["phone_url"], app["vm"] = network_info(h, port)
+                log.info("Now answering %s", "the network" if h != "127.0.0.1" else "this computer only")
+                return
+
+    app["listen"] = listen
+    stop = asyncio.Event()
+    loop = asyncio.get_running_loop()
+    for sig in (signal.SIGINT, signal.SIGTERM):
+        try:
+            loop.add_signal_handler(sig, stop.set)
+        except (NotImplementedError, RuntimeError):     # (Windows: Ctrl+C arrives as KeyboardInterrupt instead)
+            pass
+    try:
+        await stop.wait()
+    finally:
+        await runner.cleanup()
 
 
 if __name__ == "__main__":

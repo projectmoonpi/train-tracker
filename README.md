@@ -99,9 +99,10 @@ Tracker**; on Windows, double-click the downloaded installer. The installer:
 
 **Updates:** when there's a newer Train Tracker, a note at the top of the map's panel says so, the Mac menu bar
 icon's menu offers it, and on Windows a notice pops up from the icon by the clock (once per version; click it to
-update). The map's *About and credits* has the details (**Check now** asks GitHub at once). On the computer running it, **Update to <version>** downloads the new version in the background, checks
-it's the file GitHub published, and opens its installer in front: click **Update** there, and your settings, maps
-and keys are kept. Run the installer again to change your answers. With phones allowed, the map's panel shows the
+update). The map's *About and credits* has the details (**Check now** asks GitHub at once). On the computer running it, **Update to <version>** downloads the new version in the background, checks it's
+**signed by Project Moon Pi** (Ed25519, against the key built into your copy: anything unsigned or changed is
+refused) and installs it with no questions, keeping your settings, maps, keys and install answers. Phones can be
+switched on or off in **Settings** (on the computer running it); run the installer again to change other answers. With phones allowed, the map's panel shows the
 address and a QR code to scan. Details, the Raspberry Pi setup and troubleshooting are in the
 [Installation Guide](docs/INSTALL.md).
 
@@ -293,6 +294,8 @@ holds what's Train Tracker's own; the other files are shared with SkyScope and A
 * [qrcode-generator](https://github.com/kazuhikoarase/qrcode-generator) 1.4.4 by Kazuhiko Arase, MIT (the "Open on your phone" QR code; included in `web/vendor/`)
 * Printable guide: [reportlab](https://www.reportlab.com/opensource/) (BSD) and [DejaVu Sans](https://dejavu-fonts.github.io/) (Bitstream Vera / DejaVu licence)
 * Development: [pytest](https://pytest.org) (MIT), [build](https://github.com/pypa/build) (MIT)
+* Signed updates: signatures made with [OpenSSH](https://www.openssh.com)'s `ssh-keygen -Y sign` (BSD); checked by
+  `signing.py`, an Ed25519 check written from [RFC 8032](https://www.rfc-editor.org/rfc/rfc8032) (no extra packages)
 
 **Logo:** Project Moon Pi. The animated splash (lens flare, flickering lander engines, twinkling stars, metal
 sheen) is ported from the Project Moon Pi M.O.S.S. dash; `tools/make_splash_fx.py` (needs numpy, scipy and

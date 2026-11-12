@@ -139,6 +139,9 @@ ul { list-style: none; margin: 0; padding: 0; }
 .settings-head p { margin: 2px 0 0; color: var(--muted); }
 .settings-head .back { margin-left: auto; color: var(--fg); }
 .intro { margin: 18px 0; line-height: 1.5; }
+.section-head { font-size: 19px; margin: 26px 0 0; text-transform: none; letter-spacing: 0; color: var(--fg); }
+.phones-switch { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; cursor: pointer; }
+.phones-switch input { width: 18px; height: 18px; accent-color: var(--ok); }
 .banner { padding: 10px 12px; border-radius: 8px; background: color-mix(in srgb, var(--warn) 18%, transparent);
   border: 1px solid var(--warn); }
 .card { border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin: 14px 0; background: var(--panel); }

@@ -124,3 +124,37 @@ async function refresh() {
 
 refresh();
 setInterval(refresh, 10000);
+
+// Phones and tablets: may phones, tablets and other computers on the Wi-Fi open the map? Only the computer running
+// Train Tracker can change it; the server moves to (or from) the network straight away.
+(() => {
+  const box = document.getElementById("phones-on"), stateEl = document.getElementById("phones-state");
+  const note = document.getElementById("phones-note");
+  let info = null;
+  function show() {
+    box.checked = info.on; box.disabled = !info.here;
+    stateEl.textContent = info.on ? "On" : "Off";
+    let t = info.on
+      ? (info.url ? `Phones, tablets and other computers on your Wi-Fi can open the map at ${info.url} (the map's panel shows a QR code under Phone).`
+                  : "Phones, tablets and other computers on your Wi-Fi can open the map.")
+      : "Only this computer can open the map.";
+    if (info.on && info.windows && info.here)
+      t += " Turning it on may ask for an administrator's OK once, to open Train Tracker's port in Windows' firewall for your home network.";
+    if (!info.here) t += " Change it on the computer running Train Tracker.";
+    note.textContent = t;
+  }
+  async function load() {
+    try { info = await (await fetch("api/phones", { cache: "no-store" })).json(); show(); }
+    catch { note.textContent = "Train Tracker isn't answering."; }
+  }
+  box.addEventListener("change", async () => {
+    box.disabled = true;
+    try {
+      const r = await api("api/phones", { on: box.checked });
+      info.on = r.on; show();
+      note.textContent += " Saved.";
+      setTimeout(load, 2000);       // (the phones' address, once it's listening there)
+    } catch (e) { note.textContent = `Not changed: ${e.message}`; box.checked = !box.checked; box.disabled = false; }
+  });
+  load();
+})();
