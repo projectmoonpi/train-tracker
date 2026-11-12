@@ -36,4 +36,32 @@
   });
   show(false);
   setInterval(() => show(false), 6 * 3600 * 1000);
+
+  // A newer version: a note at the top of the panel ("Update" opens About's Updates), until it's dismissed for
+  // that version. "#updates" in the address (the icon by the clock, or the note) opens About at Updates.
+  function openUpdates() {
+    const about = $("credits");
+    if (!about || !$("updates")) return;
+    about.open = true;
+    $("updates").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+  async function note() {
+    try {
+      const u = await (await fetch("api/update", { cache: "no-store" })).json();
+      let gone = null;
+      try { gone = localStorage.getItem("tt-update-dismissed"); } catch {}
+      $("update-note").hidden = !(u.newer && u.latest !== gone);
+      if (u.newer) $("update-text").textContent = `Train Tracker ${u.latest} is available.`;
+      $("update-close").onclick = () => {
+        $("update-note").hidden = true;
+        try { localStorage.setItem("tt-update-dismissed", u.latest); } catch {}
+      };
+    } catch {}
+  }
+  $("update-open")?.addEventListener("click", e => { e.preventDefault(); openUpdates(); });
+  if (location.hash === "#updates") setTimeout(openUpdates, 600);
+  window.addEventListener("hashchange", () => { if (location.hash === "#updates") openUpdates(); });
+  setTimeout(note, 15000);                 // (the first check runs in the background: ask again shortly)
+  setInterval(note, 3 * 3600 * 1000);
+  note();
 })();

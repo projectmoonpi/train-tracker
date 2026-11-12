@@ -148,6 +148,15 @@ class Tray:
     def open_keys(self, *_):
         webbrowser.open(self.base + "/settings.html")
 
+    def update_text(self, _item=None):
+        return f"Get Train Tracker {(self.info or {}).get('update')}…"
+
+    def has_update(self, _item=None):
+        return bool((self.info or {}).get("update")) and not self.stopping
+
+    def open_update(self, *_):
+        webbrowser.open(self.base + "/#updates")     # (About › Updates: Update to <version>)
+
     def stop(self, *_):
         """As the Stop Train Tracker icon does (with its message), or just ends the server if this isn't an
         installed copy."""
@@ -209,6 +218,7 @@ class Tray:
             Menu.SEPARATOR,
             Item("Open the map", self.open_map, default=True),
             Item("API keys…", self.open_keys),
+            Item(self.update_text, self.open_update, visible=self.has_update),   # (a newer Train Tracker)
             Menu.SEPARATOR,
             Item("Stop Train Tracker", self.stop, enabled=lambda _i: not self.stopping),
         )

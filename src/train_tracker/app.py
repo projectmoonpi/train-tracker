@@ -225,8 +225,11 @@ async def status_handler(request):
 async def info_handler(request):
     """Version, the address phones on this network can use (when the server listens beyond this computer),
     and for the menu bar / taskbar icon, when it started and how many trains are on the map."""
+    from . import updates
+    up = updates.status(True)          # (a newer Train Tracker: the icon's menu offers it)
     return web.json_response({"version": __version__, "phone_url": request.app.get("phone_url"), "vm": request.app.get("vm"),
-                              "since": request.app["started"], "trains": len(request.app["hub"].vehicles)})
+                              "since": request.app["started"], "trains": len(request.app["hub"].vehicles),
+                              "update": up["latest"] if up.get("newer") else None})
 
 
 async def alerts_handler(request):

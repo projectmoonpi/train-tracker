@@ -175,6 +175,11 @@ section 5.
 
 ### Updates
 
+When there's a newer Train Tracker, you're told: a note at the top of the map's panel (**Update** opens the
+Updates section; ✕ hides it until the next version), **Get Train Tracker <version>…** in the Mac menu bar icon's
+menu, and on Windows a notice from the train icon by the clock, once for each new version (click it to update;
+its menu has **Update to Train Tracker <version>...** too).
+
 Open the map's panel, then **About and credits**: **Updates** says which version you have and whether there's a
 newer one (Train Tracker asks GitHub a few times a day; **Check now** asks at once). On the computer running Train
 Tracker, **Update to <version>** downloads the new version in the background, checks it's the file GitHub

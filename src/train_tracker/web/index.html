@@ -31,6 +31,8 @@
     <h1>US Train Tracker</h1>
     <span id="conn" class="conn off" title="Live connection">offline</span>
   </header>
+  <div id="update-note" hidden><span id="update-text"></span><a href="#updates" id="update-open">Update</a>
+    <button type="button" id="update-close" aria-label="Not now">✕</button></div>
   <p id="summary">Connecting…</p>
   <input id="search" type="search" placeholder="Train number, route or station" autocomplete="off">
   <ul id="results"></ul>

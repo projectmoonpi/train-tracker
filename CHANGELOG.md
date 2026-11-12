@@ -4,6 +4,11 @@ All notable changes to this project are listed here. Versions follow [Semantic V
 
 ## [Unreleased]
 
+- Told when there's a newer Train Tracker: a note at the top of the map's panel (dismissed per version), a
+  **Get Train Tracker <version>…** item in the Mac menu bar icon's menu, and on Windows a notice from the icon by
+  the clock, once per version (click it to update), with **Update to Train Tracker <version>...** in its menu. Each
+  opens About › Updates, whose **Update to <version>** does the rest.
+
 ## [1.0.10] - 2026-11-11
 
 - Windows installer: it no longer installs into the Desktop, Documents, Downloads or OneDrive folders. Ransomware

@@ -34,6 +34,7 @@ static partial class App
     public const int DefaultPort = 7500;
     public const string OpenPath = "/";
     public const string ProbePath = "/api/info";
+    public const string UpdatePath = "/#updates";   // the Update button, for the icon's "Update to <version>..." (Tray.cs)
     public const string PageName = "the map";
     public static readonly string StopHeader = null;        // no shutdown request: Stop ends its program
     public const int StartSeconds = 240;                    // (the very first start downloads maps and schedules)

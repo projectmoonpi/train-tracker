@@ -97,8 +97,9 @@ Tracker**; on Windows, double-click the downloaded installer. The installer:
   start or stop the service.
   Activity Monitor and Task Manager list it as **Train Tracker**.
 
-**Updates:** the map's *About and credits* says when there's a newer Train Tracker (**Check now** asks GitHub
-at once). On the computer running it, **Update to <version>** downloads the new version in the background, checks
+**Updates:** when there's a newer Train Tracker, a note at the top of the map's panel says so, the Mac menu bar
+icon's menu offers it, and on Windows a notice pops up from the icon by the clock (once per version; click it to
+update). The map's *About and credits* has the details (**Check now** asks GitHub at once). On the computer running it, **Update to <version>** downloads the new version in the background, checks
 it's the file GitHub published, and opens its installer in front: click **Update** there, and your settings, maps
 and keys are kept. Run the installer again to change your answers. With phones allowed, the map's panel shows the
 address and a QR code to scan. Details, the Raspberry Pi setup and troubleshooting are in the
