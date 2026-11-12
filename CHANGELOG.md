@@ -4,6 +4,8 @@ All notable changes to this project are listed here. Versions follow [Semantic V
 
 ## [Unreleased]
 
+## [1.0.12] - 2026-11-12
+
 - Updates are signed: every release's downloads carry a signature made with Project Moon Pi's private key, and
   **Update to <version>** installs only a download whose signature checks out against the key built into Train
   Tracker (Ed25519, checked in plain Python). Anything unsigned, changed or signed by another key is refused.
